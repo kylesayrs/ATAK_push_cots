@@ -1,6 +1,85 @@
+from typing import Union, List
+
+import os
+
+
 class CoTServer:
-    def __init__(self, host: str, port: int, file_directory: str) -> None:
+    def __init__(
+        self,
+        host: str,
+        port: int,
+        file_directory: str,
+        await_requests: bool = True,
+        clean_after_exit: bool = True
+    ) -> None:
+        self.file_directory = file_directory
+        
+        # begin serving in thread
+
+        # track all push_cot calls. List all calls with sender_uid and cot uid
+        # if await_requests, wait for all calls to get corresponding requests
+        # before exiting
+
+        if await_requests:
+            
+
+
+    def push_cot(
+        self,
+        uid: str,
+        latitude: int,
+        longitude: int,
+        attachment_path: Union[str, List[str]],
+        **cot_kwargs
+    ):
+        if uid in self._get_cot_uids():
+            raise ValueError("")
+
+        # create and save data package        
+        data_package_path = _create_data_package(attachment_path)
+        
+        # Compose message
+        message = composeMessage(uid, lat, lon, data_package_path)
+
+        # Send message
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        conn = sock.connect((IP, PORT))
+        sock.send(message)
+
+
+    def serve_forever(self):
+        while True:
+            pass  # catch keyboard interrupt
+
+
+    def exit(self):
         pass
+
+
+    def __enter__(self):
+        pass
+
+
+    def __exit__(self):
+        pass
+
+
+    def _get_cot_uids(self):
+        return os.listdir(self.file_directory)
+    
+
+    def _create_data_package() -> str:
+        # copy attachments, if any
+
+        # compose manifest
+        manifest_text = composeManifest(uid, attachment_files)
+        os.makedirs(manifest_dir)
+        with open(manifest_path, 'wb') as manifest_file:
+            manifest_file.write(manifest_text)
+
+        # zip file
+
+        return file_path
 
 
 import os
@@ -33,67 +112,6 @@ SENDER_UID = 'sender_uid'
 SENDER_CALLSIGN = 'Headquarters'
 FILESHARE_NAME = 'Attachment Datapack'
 
-def pushCoT(uid, lat, lon, file_path=None):
-    # Compose message
-    message = composeMessage(uid, lat, lon, file_path=file_path)
-    print(message.decode("utf-8"))
-
-    # Send message
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    conn = sock.connect((IP, PORT))
-    sock.send(message)
-
-def composeMessage(uid, lat, lon, file_path=None):
-    # Initialize CoT parameters
-    now = datetime.datetime.utcnow()
-    start = now.strftime(DATETIME_FORMAT)
-    time = now.strftime(DATETIME_FORMAT)
-    stale = (now + datetime.timedelta(minutes=STALE_DURATION)).strftime(DATETIME_FORMAT)
-    if file_path:
-        size = str(calcSize(file_path))
-        hash = str(calcHash(file_path))
-
-    # Build XML
-    event = ET.Element('event')
-    event.set('version', '2.0')
-    event.set('uid', uid)
-    event.set('type', "a-{attitude}-{dimension}".format(attitude=ATTITUDE,
-                                                        dimension=DIMENSION))
-    event.set('how', HOW)
-    event.set('start', start)
-    event.set('time', time)
-    event.set('stale', stale)
-
-    detail = ET.SubElement(event, 'detail')
-    contact = ET.SubElement(detail, 'contact')
-    contact.set('callsign', CALLSIGN)
-    remarks = ET.SubElement(detail, 'remarks')
-
-    if file_path:
-        fileshare = ET.SubElement(detail, 'fileshare')
-        fileshare.set('filename', PACKAGE_FILE_NAME)
-        url = 'http://{ip}:{port}/getfile?file={uid}&sender={sender}'\
-              .format(ip=SERVER_IP, port=SERVER_PORT, uid=uid, sender=SENDER_CALLSIGN)
-        fileshare.set('senderUrl', url)
-        fileshare.set('sizeInBytes', size)
-        fileshare.set('sha256', hash)
-        fileshare.set('senderUid', SENDER_UID)
-        fileshare.set('senderCallsign', SENDER_CALLSIGN)
-        fileshare.set('name', FILESHARE_NAME)
-
-        ackreq = ET.SubElement(detail, 'ackrequest')
-        ackreq.set('uid', uuid.uuid4().hex)
-        ackreq.set('ackrequested', 'true')
-        ackreq.set('tag', PACKAGE_FILE_NAME)
-
-    point = ET.SubElement(event, 'point')
-    point.set('le', '0.0')
-    point.set('ce', '1.0')
-    point.set('hae', '10.0')
-    point.set('lat', str(lat))
-    point.set('lon', str(lon))
-
-    return ET.tostring(event)
 
 def calcSize(file_path):
     return os.path.getsize(file_path)
@@ -177,39 +195,3 @@ def zipPackage(uid):
 
     else:
         print("WARNING: No attachments for {uid}".format(uid=uid))
-
-def composeManifest(uid, attachment_files):
-    mpm = ET.Element('MissionPackageManifest')
-    mpm.set('version', '2')
-
-    config = ET.SubElement(mpm, 'Configuration')
-    config_uid = ET.SubElement(config, 'Parameter')
-    config_uid.set('name', 'uid')
-    config_uid.set('value', MANIFEST_UID)
-    config_name = ET.SubElement(config, 'Parameter')
-    config_name.set('name', 'name')
-    config_name.set('value', MANIFEST_NAME)
-    config_del = ET.SubElement(config, 'Parameter')
-    config_del.set('name', 'onReceiveDelete')
-    config_del.set('value', 'true')
-
-    contents = ET.SubElement(mpm, 'Contents')
-    for file in attachment_files:
-        file_path = os.path.join(PACKAGE_DIR, uid, file)
-        local_path = os.path.join(uid, file)
-        content = ET.SubElement(contents, 'Content')
-        content.set('ignore', 'false')
-        content.set('zipEntry', local_path)
-        content_uid = ET.SubElement(content, 'Parameter') # TODO: Double check this is necessary
-        content_uid.set('name', 'uid')
-        content_uid.set('value', uid)
-        content_iscot = ET.SubElement(content, 'Parameter') # Marks as attachment
-        content_iscot.set('name', 'isCoT')
-        content_iscot.set('value', 'false')
-        mime_type = magic.Magic(mime=True).from_file(file_path)
-        content_mime = ET.SubElement(content, 'Parameter') # Mime type
-        content_mime.set('name', 'contentType')
-        content_mime.set('value', mime_type)
-
-    # create a new XML file with the results
-    return ET.tostring(mpm)
