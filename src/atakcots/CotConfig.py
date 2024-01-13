@@ -15,10 +15,11 @@ class CotConfig(BaseModel):
     uid: str = Field(description="")
     latitude: float = Field(description="Latitude referred to the WGS 84 ellipsoid in degrees")
     longitude: float = Field(description="Longitude referred to the WGS 84 in degrees")
+    altitude: float = Field(default= 0.0, description="Height above the WGS ellipsoid in meters")
 
     stale_duration: int = Field(default=600, description="Number of seconds before cot message becomes stale")
 
-    callsign: str = Field(default="default callsign", description="Callsign of event described by cot")
+    callsign: str = Field(default="default_callsign", description="Callsign of event described by cot")
     attitude: str = Field(default="x", description="Attitude of cot type field")
     dimension: str = Field(default="X", description="Dimension of cot type field")
     how: str = Field(default="m-g", description="Gives a hint about how the coordinates were generated")

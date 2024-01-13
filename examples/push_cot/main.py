@@ -4,8 +4,8 @@ from atakcots import CotConfig, push_cot
 if __name__ == "__main__":
     cot_config = CotConfig(
         uid="My_Message",
-        latitude=34.850132,
-        longitude=137.120065
+        latitude=40.74931973338903,
+        longitude=-73.96791282024928
     )
-        
-    push_cot(cot_config, "localhost", 8001)
+
+    push_cot(cot_config, "192.168.0.11", 8080)

@@ -29,8 +29,8 @@ from atakcots import CotConfig, push_cot
 
 cot_config = CotConfig(
     uid="My_Message",
-    latitude=34.850132,
-    longitude=137.120065
+    latitude=40.74931973338903,
+    longitude=-73.96791282024928
 )
     
 push_cot(cot_config, "192.168.1.1", 8001)
@@ -42,8 +42,8 @@ from atakcots import CotConfig, CotServer
 
 cot_config = CotConfig(
     uid="My_Message",
-    latitude=34.850132,
-    longitude=137.120065,
+    latitude=40.74931973338903,
+    longitude=-73.96791282024928,
     attachment_paths="sandeot.png"
 )
     
@@ -62,8 +62,8 @@ from atakcots import CotConfig, CotServer
 
 cot_config = CotConfig(
     uid="My_Message",
-    latitude=34.850132,
-    longitude=137.120065,
+    latitude=40.74931973338903,
+    longitude=-73.96791282024928,
     attachment_paths="sandeot.png"
 )
 

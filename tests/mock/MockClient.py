@@ -35,7 +35,7 @@ class MockClient(socketserver.TCPServer):
 
     def server_close(self):
         if self.verbose:
-            print("Shutting down...")
+            print(f"Shutting down {self.server_address}...")
 
         super().server_close()
 

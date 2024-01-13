@@ -9,7 +9,7 @@ import xml.etree.ElementTree as ElementTree
 from .CotConfig import CotConfig
 
 
-_DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
+_DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ" #"%Y-%m-%dT%H:%M:%SZ"
 
 
 def compose_message(
@@ -57,8 +57,9 @@ def compose_message(
     # additional data
     detail = ElementTree.SubElement(event, "detail")
     contact = ElementTree.SubElement(detail, "contact")
-    contact.set("callsign", cot_config.callsign)
+    #contact.set("callsign", cot_config.callsign)
     _remarks = ElementTree.SubElement(detail, "remarks")  # TODO: add remarks
+    _track = ElementTree.SubElement(detail, "track")  # TODO: add track
 
     # attachments data
     if data_package_path is not None:
@@ -81,11 +82,11 @@ def compose_message(
 
     # location data
     point = ElementTree.SubElement(event, "point")
-    point.set("le", "0.0")
-    point.set("ce", "1.0")
-    point.set("hae", "10.0")
     point.set("lat", str(cot_config.latitude))
     point.set("lon", str(cot_config.longitude))
+    point.set("hae", str(cot_config.altitude))
+    point.set("ce", "1.0")
+    point.set("le", "0.0")
 
     return ElementTree.tostring(event)
 
