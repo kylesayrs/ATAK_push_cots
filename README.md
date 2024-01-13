@@ -52,3 +52,40 @@ python3 main.py
 * Restructure as a python package which can be better integrated into existing projects
 * Implement relevant CoT parameters as arguments rather than hard-coded values
 * Add support for additional data formats such as geojson 
+
+
+```python
+from atakcots import CotServer, CotConfig
+
+cot_config = CotConfig(
+    uid="My_Message",
+    latitude=34.850132,
+    longitude=137.120065,
+    attachment_path="my_image.png"
+)
+
+with CotServer("localhost", 8000, directory="/tmp", wait_req_before_close=True) as server:
+    server.push_cot(cot_config, "192.168.99.169", 8001)
+    server.push_cot(cot_config, "192.168.99.169", 8001)
+    server.push_cot(cot_config, "192.168.99.169", 8001)
+```
+
+
+
+
+```python
+from atakcots import CotServer, CotConfig
+
+server = CotServer("localhost", 8000, directory="/tmp")
+server.start()
+cot_config = CotConfig(
+    uid="My_Message",
+    latitude=34.850132,
+    longitude=137.120065,
+    attachment_path="my_image.png"
+)
+server.push_cot(cot_config, "192.168.99.169", 8001)
+
+# once the mission is finished
+server.close()
+```
