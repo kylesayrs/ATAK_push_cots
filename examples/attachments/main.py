@@ -13,3 +13,9 @@ if __name__ == "__main__":
         server.push_cot(cot_config, "localhost", 8001)
         server.push_cot(cot_config, "localhost", 8001)
         server.push_cot(cot_config, "localhost", 8001)
+
+        try:
+            while True:
+                pass
+        except KeyboardInterrupt:
+            pass

@@ -66,7 +66,7 @@ def compose_message(
 
         fileshare.set("name", os.path.basename(data_package_path))
         fileshare.set("filename", os.path.basename(data_package_path))
-        fileshare.set("senderUrl", f"http://{hostname}:{port}/{hash(cot_config)}.zip")
+        fileshare.set("senderUrl", f"http://{hostname}:{port}/{hash(cot_config):x}.zip")
 
         fileshare.set("sizeInBytes", str(os.path.getsize(data_package_path)))
         fileshare.set("sha256", hash_file_sha256(data_package_path))

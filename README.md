@@ -78,35 +78,9 @@ server.push_cot(cot_config, "192.168.1.3", 8001)
 server.stop()
 ```
 
-You can monitor statistics such which clients have requested attachments using `CotServer.stat`
-```python
-import time
-from atakcots import CotConfig, CotServer
-
-cot_config = CotConfig(
-    uid="My_Message",
-    latitude=34.850132,
-    longitude=137.120065
-)
-    
-with CotServer("localhost", 8000) as server:
-    print(server.stat())
-    # {}
-
-    server.push_cot(cot_config, "192.168.1.1", 8001)
-    print(server.stat())
-    # {CotConfig(uid='My_Message', ...): CotEntry(... client_requests=[])}
-
-    time.sleep(5)  # wait for client to request
-    print(server.stat())
-    # {CotConfig(uid='My_Message', ...): CotEntry(... client_requests=["192.168.1.1"])}
-```
-
 See `examples` for more use cases.
 
 
 ## TODO ##
-1. Add file server in separate thread
-2. Have file server report statistics
-3. Double check manifest and message fields are necessary
-4. Add tests
+1. Double check manifest and message fields are necessary
+2. Add tests

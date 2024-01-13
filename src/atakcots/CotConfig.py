@@ -42,7 +42,7 @@ class CotConfig(BaseModel):
         return value
 
 
-    def __hash__(self) -> bytes:
+    def __hash__(self) -> int:
         dict_repr = self.model_dump(mode="json")
         str_repr = json.dumps(dict_repr)
         return hash(str_repr)

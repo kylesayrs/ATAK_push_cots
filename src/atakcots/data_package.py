@@ -18,7 +18,7 @@ def create_data_package(cot_config: CotConfig, directory: str) -> str:
     :return: path to data package file in directory
     """
     # create zip file as data package
-    data_package_path = os.path.join(directory, f"{hash(cot_config)}.zip")
+    data_package_path = os.path.join(directory, f"{hash(cot_config):x}.zip")
     zip_file = zipfile.ZipFile(data_package_path, "w", zipfile.ZIP_DEFLATED)
 
     # compose manifest
@@ -28,7 +28,7 @@ def create_data_package(cot_config: CotConfig, directory: str) -> str:
     zip_file.writestr(os.path.join("MANIFEST", "manifest.xml"), manifest_text)
     for attachment_path in cot_config.attachment_paths:
         # arcname should match the zipEntry value in the manifest
-        zip_file.write(attachment_path, hash(attachment_path))
+        zip_file.write(attachment_path, f"{hash(attachment_path):x}")
 
     return data_package_path
 
@@ -60,7 +60,7 @@ def compose_manifest(cot_config: CotConfig, data_package_path: str) -> str:
     for attachment_path in cot_config.attachment_paths:
         content = ElementTree.SubElement(contents, "Content")
         content.set("ignore", "false")
-        content.set("zipEntry", hash(attachment_path))  # zipEntry should match the arcname specified when writing the file to the zip
+        content.set("zipEntry", f"{hash(attachment_path):x}")  # zipEntry should match the arcname specified when writing the file to the zip
 
         content_uid = ElementTree.SubElement(content, "ParamElementTreeer") # TODO: Double check this is necessary
         content_uid.set("name", "uid")

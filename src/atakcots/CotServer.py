@@ -1,27 +1,16 @@
 from types import TracebackType
-from typing import Optional, Dict, List
+from typing import Optional, Dict
 
 import os
-import copy
-from dataclasses import dataclass, field
+import shutil
+import http.server
+from threading import Thread
+from functools import partial
 
 from .CotConfig import CotConfig
 from .message import compose_message
 from .data_package import create_data_package
 from .SocketConnection import SocketConnection
-
-
-@dataclass
-class CotEntry:
-    """
-    Stores information about a particular cot/data package endpoint
-    
-    :param data_package_path: path to associated data package
-    :param client_requests: list of all clients ips which have requested the
-        data package in order of request
-    """
-    data_package_path: Optional[str] = None
-    client_requests: List[str] = field(default_factory=lambda: [])
 
 
 class CotServer:
@@ -52,19 +41,30 @@ class CotServer:
         self._data_package_dir = data_package_dir
         self._timeout = timeout
 
-        os.makedirs(data_package_dir, exist_ok=True)
-        self._cot_entries: Dict[CotConfig, CotEntry] = {}
+        self._make_empty_data_package_dir(data_package_dir)
+
+        handler = partial(http.server.SimpleHTTPRequestHandler, directory=data_package_dir)
+        self._file_server = http.server.HTTPServer((hostname, port), handler)
+        self._file_server_thread = Thread(target=self._file_server.serve_forever)
+
+        self._cot_dp_paths: Dict[CotConfig, str] = {}
 
     
     def start(self):
-        # TODO: make sure file server is secure
-        # TODO: start file server in thread
-        pass
+        """
+        Start file server thread
+
+        """
+        self._file_server_thread.start()
 
 
     def stop(self):
-        # TODO: stop server and thread
-        pass
+        """
+        Stop file server thread
+
+        """
+        self._file_server.shutdown()
+        self._file_server_thread.join()
 
 
     def push_cot(
@@ -81,29 +81,35 @@ class CotServer:
         :param client_port: cot destination port
         """
         # create data package if new cot
-        if cot_config not in self._cot_entries:
+        if cot_config not in self._cot_dp_paths:
             data_package_path = create_data_package(cot_config, self._data_package_dir)
-            self._cot_entries[cot_config] = CotEntry(data_package_path)
+            self._cot_dp_paths[cot_config] = data_package_path
         
         # Compose message
-        data_package_path = self._cot_entries[cot_config].data_package_path
+        data_package_path = self._cot_dp_paths[cot_config]
         message = compose_message(cot_config, self._hostname, self._port, data_package_path)
 
         # Send message
         with SocketConnection(client_hostname, client_port, self._timeout) as socket_connection:
             socket_connection.send(message)
+    
 
-
-    def stat(self) -> Dict[CotConfig, CotEntry]:
+    def _make_empty_data_package_dir(self, data_package_dir: str):
         """
-        Get statistics about cot endpoints
+        Create a new, emtpy data package directory
 
-        :return: dictionary mapping cot configs to endpoint data
+        :param data_package_dir: path to data package directory
         """
-        return {
-            cot_config.model_copy(deep=True): copy.deepcopy(cot_entry)
-            for cot_config, cot_entry in self._cot_entries.items()
-        }
+        if os.path.isfile(data_package_dir):
+            raise ValueError(
+                f"File already exists with path {data_package_dir}, cannot "
+                "create data package directory"
+            )
+        
+        if os.path.exists(data_package_dir):
+            shutil.rmtree(data_package_dir)
+        
+        os.makedirs(data_package_dir, exist_ok=True)
     
     
     def __enter__(self) -> "CotServer":
