@@ -1,6 +1,8 @@
+from types import TracebackType
 from typing import Tuple
 
 import socketserver
+from threading import Thread
 
 
 class RecordingTCPHandler(socketserver.BaseRequestHandler):
@@ -21,12 +23,13 @@ class RecordingTCPHandler(socketserver.BaseRequestHandler):
 class MockClient(socketserver.TCPServer):
     def __init__(self, server_address: Tuple[str, int], verbose: bool = False):
         super().__init__(server_address, RecordingTCPHandler)
+        self.server_address = server_address
         self.verbose = verbose
+
         self.connections = []
         self.request_data = []
 
-        if verbose:
-            print(f"Listening on {server_address}")
+        self._thread = None
 
 
     def server_close(self):
@@ -36,10 +39,33 @@ class MockClient(socketserver.TCPServer):
         super().server_close()
 
 
-if __name__ == "__main__":
-    mock_server = MockClient(("localhost", 8001), verbose=True)
+    def start(self):
+        self._thread = Thread(target=self.serve_forever)
+        self._thread.start()
 
-    try:
-        mock_server.serve_forever()
-    except KeyboardInterrupt:
-        mock_server.server_close()
+        if self.verbose:
+            print(f"Listening on {self.server_address}")
+
+
+    def stop(self):
+        self.shutdown()
+        self.server_close()
+        self._thread.join()
+        self._thread = None
+
+
+    def __enter__(self) -> "MockClient":
+        self.start()
+        return self
+    
+
+    def __exit__(self, _exc_type: type, exc_value: Exception, _exc_tb: TracebackType):
+        self.stop()
+
+
+if __name__ == "__main__":
+    with MockClient(("localhost", 8001), verbose=True) as mock_server:
+        try:
+            while True: pass 
+        except KeyboardInterrupt:
+            pass
