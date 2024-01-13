@@ -1,5 +1,5 @@
 # ATAK_push_cots
-Push Cursor on Target messages for ATAK with attachments and other information
+Push Cursor on Target messages to TAK clients with attachments and other information
 
 ## Background ##
 Android Tactical Awareness Kit (ATAK) is a software developed by the US Air Force
@@ -11,15 +11,12 @@ Additionally, a summary of the cursor on target schema (CoT) can be found [here]
 For troubleshooting, create an issue or ask on the [reddit](https://www.reddit.com/r/ATAK/wiki/index) or [discord](https://discord.com/invite/xTdEcpc), the community
 is super friendly.
 
-
-## Implementation ##
-CoT messages with file attachments work by first sending a standard CoT along with
-a link to a file sharing endpoint. This endpoint serves ATAK data packages, which
-can be downloaded by ATAK and attached to the CoT.
-
-Data packages are zip files containing attachments, (CoT messages if desired),
-and a manifest file. Look at the implementation for more information on how
-attachments are entered and how manifest files are formatted.
+## Installation ##
+```bash
+git clone https://github.com/kylesayrs/ATAK_push_cots
+cd ATAK_push_cots
+python3 -m pip install -e .
+```
 
 
 ## Usage ##
@@ -79,6 +76,16 @@ server.stop()
 ```
 
 See `examples` for more use cases.
+
+
+## Implementation ##
+CoT messages with file attachments work by first sending a standard CoT along with
+a link to a file sharing endpoint. This endpoint serves ATAK data packages, which
+can be downloaded by ATAK and attached to the CoT.
+
+Data packages are zip files containing attachments, (CoT messages if desired),
+and a manifest file. Look at the implementation for more information on how
+attachments are entered and how manifest files are formatted.
 
 
 ## TODO ##
