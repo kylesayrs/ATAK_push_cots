@@ -1,6 +1,8 @@
 from setuptools import setup, find_packages
 
-_deps = []
+_deps = [
+    "pydantic"
+]
 
 setup(
     name="atakcots",
@@ -9,8 +11,5 @@ setup(
     description="",
     install_requires=_deps,
     package_dir={"": "src"},
-    packages=find_packages("src", include=["atakcots"], exclude=["*.__pycache__.*"]),
-    entry_points={
-        "console_scripts": [],
-    },
+    packages=find_packages("src", include=["atakcots"], exclude=["*.__pycache__.*"])
 )

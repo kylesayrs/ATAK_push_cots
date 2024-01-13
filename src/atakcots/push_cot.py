@@ -1,4 +1,3 @@
-
 from .CotConfig import CotConfig
 from .message import compose_message
 from .SocketConnection import SocketConnection
