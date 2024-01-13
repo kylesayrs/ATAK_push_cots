@@ -1,5 +1,5 @@
 from types import TracebackType
-from typing import Union, List, Optional, Dict
+from typing import Optional, Dict
 
 import os
 import copy
