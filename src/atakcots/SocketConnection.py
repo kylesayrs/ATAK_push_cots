@@ -1,18 +1,18 @@
 from types import TracebackType
+from typing import Optional
 
 import socket
 
 
 class SocketConnection:
-    def __init__(self, hostname: str, port: int, timeout: float = None):
+    def __init__(self, hostname: str, port: int, timeout: Optional[float] = None):
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._socket.settimeout(timeout)
-    
-        self._connection = self._socket.connect((hostname, port))
+        self._socket.connect((hostname, port))
 
 
     def send(self, message: str):
-        self._connection.send(message)
+        self._socket.send(message)
 
 
     def __enter__(self) -> "SocketConnection":

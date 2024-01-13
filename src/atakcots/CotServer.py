@@ -27,13 +27,13 @@ class CotServer:
         directory: str = "/tmp/cot_server",
         wait_req_before_close: bool = False
     ):
-        self.hostname = hostname
-        self.port = port
-        self.directory = directory
-        self.wait_req_before_close = wait_req_before_close
+        self._hostname = hostname
+        self._port = port
+        self._directory = directory
+        self._wait_req_before_close = wait_req_before_close
 
         os.makedirs(directory, exist_ok=True)
-        self.cot_entries: Dict[CotConfig, CotEntry] = {}
+        self._cot_entries: Dict[CotConfig, CotEntry] = {}
 
     
     def start(self, ):
@@ -42,11 +42,11 @@ class CotServer:
 
 
     def stop(self):
-        if self.wait_req_before_close:
+        if self._wait_req_before_close:
             while True:
                 cot_been_requested = [
                     cot_entry.num_requests > 0
-                    for cot_entry in self.cot_entries.values()
+                    for cot_entry in self._cot_entries.values()
                 ]
 
                 if all(cot_been_requested):
@@ -64,29 +64,32 @@ class CotServer:
         client_port: int
     ):
         # create data package if new cot
-        if cot_config not in self.cot_entries:
+        if cot_config not in self._cot_entries:
             data_package_path = self._create_data_package(cot_config)
-            self.cot_entries[cot_config] = CotEntry(data_package_path)
+            self._cot_entries[cot_config] = CotEntry(data_package_path)
         
         # Compose message
-        data_package_path = self.cot_entries[cot_config].data_package_path
-        message = compose_message(self.hostname, self.port, cot_config, data_package_path)
+        data_package_path = self._cot_entries[cot_config].data_package_path
+        message = compose_message(self._hostname, self._port, cot_config, data_package_path)
+        print(message)
 
         # Send message
+        print(client_hostname)
+        print(client_port)
         with SocketConnection(client_hostname, client_port) as socket_connection:
             socket_connection.send(message)
 
 
     def stat(self) -> Dict[CotConfig, CotEntry]:
         return {
-            cot_config.copy(): copy.deepcopy(cot_entry)
-            for cot_config, cot_entry in self.cots.items()
+            cot_config.model_dump(mode="python"): copy.deepcopy(cot_entry)
+            for cot_config, cot_entry in self._cot_entries.items()
         }
     
 
     def _create_data_package(self, cot_config: CotConfig) -> str:
         # create zip file as data package
-        data_package_path = os.path.join(self.directory, f"{hash(cot_config)}.zip")
+        data_package_path = os.path.join(self._directory, f"{hash(cot_config)}.zip")
         zip_file = zipfile.ZipFile(data_package_path, "w", zipfile.ZIP_DEFLATED)
 
         # compose manifest

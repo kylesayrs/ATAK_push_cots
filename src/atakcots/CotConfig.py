@@ -22,7 +22,7 @@ class CotConfig(BaseModel):
 
     manifest_name: str = Field(default="manifest")  # TODO: check, but pretty sure this is totally irrelevant
     
-    attachment_paths: List[str] = Field(default=None, description="")
+    attachment_paths: List[str] = Field(default=[], description="")
     
 
     @field_validator("attachment_paths", mode="before")

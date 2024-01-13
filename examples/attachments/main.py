@@ -10,6 +10,6 @@ if __name__ == "__main__":
     )
         
     with CotServer("localhost", 8000) as server:
-        server.push_cot(cot_config, "192.168.99.169", 8001)
-        server.push_cot(cot_config, "192.168.99.169", 8001)
-        server.push_cot(cot_config, "192.168.99.169", 8001)
+        server.push_cot(cot_config, "localhost", 8001)
+        server.push_cot(cot_config, "localhost", 8001)
+        server.push_cot(cot_config, "localhost", 8001)
