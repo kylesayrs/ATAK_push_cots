@@ -22,7 +22,10 @@ def push_cot(cot_config: CotConfig, client_hostname: str, client_port: int):
 
     # Compose message
     message = compose_message(cot_config)
+    print(message)
 
     # Send message
     with SocketConnection(client_hostname, client_port) as socket_connection:
         socket_connection.send(message)
+
+    print("sent")

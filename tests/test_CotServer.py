@@ -1,6 +1,7 @@
 from typing import Optional, Union
 
 import os
+import time
 import requests
 import xml.etree.ElementTree as ElementTree
 
@@ -122,6 +123,7 @@ def test_push_cot():
 
         with CotServer(_TEST_HOSTNAME, _TEST_SERVER_PORT, _TEST_DATA_PACKAGE_DIR) as server:
             server.push_cot(cot_config, _TEST_HOSTNAME, _TEST_CLIENT_PORT)
+            time.sleep(0.1)  # wait for cot to be transmitted
 
         assert len(mock_client.connections) == 1
         assert len(mock_client.request_data) == 1
@@ -148,6 +150,7 @@ def test_push_cot_attachments():
             )
             
             server.push_cot(cot_config, _TEST_HOSTNAME, _TEST_CLIENT_PORT)
+            time.sleep(0.1)  # wait for cot to be transmitted
 
         assert len(mock_client.connections) == 1
         assert len(mock_client.request_data) == 1

@@ -83,4 +83,3 @@ See `examples` for more use cases.
 
 ## TODO ##
 1. Double check manifest and message fields are necessary
-2. Add tests
