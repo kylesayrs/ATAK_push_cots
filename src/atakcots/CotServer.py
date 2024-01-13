@@ -43,9 +43,8 @@ class CotServer:
 
         self._make_empty_data_package_dir(data_package_dir)
 
-        handler = partial(http.server.SimpleHTTPRequestHandler, directory=data_package_dir)
-        self._file_server = http.server.HTTPServer((hostname, port), handler)
-        self._file_server_thread = Thread(target=self._file_server.serve_forever)
+        self._file_server = None
+        self._file_server_thread = None
 
         self._cot_dp_paths: Dict[CotConfig, str] = {}
 
@@ -55,6 +54,10 @@ class CotServer:
         Start file server thread
 
         """
+        # reinitialize file server to allow restarting
+        handler = partial(http.server.SimpleHTTPRequestHandler, directory=self._data_package_dir)
+        self._file_server = http.server.HTTPServer((self._hostname, self._port), handler)
+        self._file_server_thread = Thread(target=self._file_server.serve_forever)
         self._file_server_thread.start()
 
 
@@ -63,8 +66,15 @@ class CotServer:
         Stop file server thread
 
         """
+        if self._file_server is None or self._file_server_thread is None:
+            raise ValueError("Cannot stop, file server not started")
+
         self._file_server.shutdown()
+        self._file_server.server_close()
         self._file_server_thread.join()
+
+        self._file_server = None
+        self._file_server_thread = None
 
 
     def push_cot(
