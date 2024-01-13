@@ -19,7 +19,10 @@ class SocketConnection:
         return self
     
 
-    def __exit__(self, _exc_type: type, _exc_val: TypeError, _exc_tb: TracebackType):
+    def __exit__(self, _exc_type: type, exc_value: Exception, _exc_tb: TracebackType):
+        if exc_value is not None:
+            raise exc_value
+        
         self._socket.close()
 
 

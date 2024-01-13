@@ -34,8 +34,27 @@ class CotServer:
 
         os.makedirs(directory, exist_ok=True)
         self.cot_entries: Dict[CotConfig, CotEntry] = {}
+
     
-        # TODO: start file server in separate thread
+    def start(self, ):
+        # TODO: start file server in thread
+        pass
+
+
+    def stop(self):
+        if self.wait_req_before_close:
+            while True:
+                cot_been_requested = [
+                    cot_entry.num_requests > 0
+                    for cot_entry in self.cot_entries.values()
+                ]
+
+                if all(cot_been_requested):
+                    return
+
+                time.sleep(0.1)
+
+        # TODO: stop server and thread
 
 
     def push_cot(
@@ -82,20 +101,12 @@ class CotServer:
     
     
     def __enter__(self) -> "CotServer":
+        self.start()
         return self
     
 
-    def __exit__(self, _exc_type: type, _exc_val: TypeError, _exc_tb: TracebackType):
-        return  # TODO: make sure that if there's an exception, the program doesn't call this
+    def __exit__(self, _exc_type: type, exc_value: Exception, _exc_tb: TracebackType):
+        if exc_value is not None:
+            raise exc_value
 
-        if self.wait_req_before_close:
-            while True:
-                cot_been_requested = [
-                    cot_entry.num_requests > 0
-                    for cot_entry in self.cot_entries.values()
-                ]
-
-                if all(cot_been_requested):
-                    return
-
-                time.sleep(0.1)
+        self.stop()
