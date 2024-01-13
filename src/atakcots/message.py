@@ -47,7 +47,7 @@ def compose_message(
         fileshare.set("filename", os.path.basename(data_package_path))
         fileshare.set("senderUrl", f"http://{hostname}:{port}/getfile?file={hash(cot_config)}")
 
-        fileshare.set("sizeInBytes", os.path.getsize(data_package_path))
+        fileshare.set("sizeInBytes", str(os.path.getsize(data_package_path)))
         fileshare.set("sha256", get_file_hash(data_package_path))
 
         fileshare.set("senderUid", cot_config.sender_uid)

@@ -51,7 +51,7 @@ class CotServer:
         
         # Compose message
         data_package_path = self.cot_entries[cot_config].data_package_path
-        message = compose_message(cot_config, data_package_path)
+        message = compose_message(self.hostname, self.port, cot_config, data_package_path)
 
         # Send message
         with SocketConnection(client_hostname, client_port) as socket_connection:
@@ -86,6 +86,8 @@ class CotServer:
     
 
     def __exit__(self, _exc_type: type, _exc_val: TypeError, _exc_tb: TracebackType):
+        return  # TODO: make sure that if there's an exception, the program doesn't call this
+
         if self.wait_req_before_close:
             while True:
                 cot_been_requested = [

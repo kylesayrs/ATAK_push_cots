@@ -4,8 +4,10 @@ import socket
 
 
 class SocketConnection:
-    def __init__(self, hostname: str, port: int) -> None:
+    def __init__(self, hostname: str, port: int, timeout: float = None):
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._socket.settimeout(timeout)
+    
         self._connection = self._socket.connect((hostname, port))
 
 
