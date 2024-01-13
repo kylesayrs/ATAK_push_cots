@@ -10,7 +10,8 @@ class RecordingTCPHandler(socketserver.BaseRequestHandler):
 
         # Parse data
         data = self.request.recv(1024).strip()
-        received_message = data.decode('utf-8')
+        received_message = data.decode("utf-8")
+        print(received_message)
 
         # Record requestt data
         self.server.request_data.append(received_message)

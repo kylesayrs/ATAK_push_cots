@@ -4,12 +4,11 @@ from typing import Optional, Dict
 import os
 import copy
 import time
-import zipfile
 from dataclasses import dataclass
 
 from .CotConfig import CotConfig
 from .message import compose_message
-from .manifest import compose_manifest
+from .data_package import create_data_package
 from .SocketConnection import SocketConnection
 
 
@@ -24,15 +23,15 @@ class CotServer:
         self,
         hostname: str,
         port: int,
-        directory: str = "/tmp/cot_server",
+        data_package_dir: str = "/tmp/cot_server",
         wait_req_before_close: bool = False
     ):
         self._hostname = hostname
         self._port = port
-        self._directory = directory
+        self._data_package_dir = data_package_dir
         self._wait_req_before_close = wait_req_before_close
 
-        os.makedirs(directory, exist_ok=True)
+        os.makedirs(data_package_dir, exist_ok=True)
         self._cot_entries: Dict[CotConfig, CotEntry] = {}
 
     
@@ -65,17 +64,14 @@ class CotServer:
     ):
         # create data package if new cot
         if cot_config not in self._cot_entries:
-            data_package_path = self._create_data_package(cot_config)
+            data_package_path = create_data_package(cot_config, self._data_package_dir)
             self._cot_entries[cot_config] = CotEntry(data_package_path)
         
         # Compose message
         data_package_path = self._cot_entries[cot_config].data_package_path
         message = compose_message(self._hostname, self._port, cot_config, data_package_path)
-        print(message)
 
         # Send message
-        print(client_hostname)
-        print(client_port)
         with SocketConnection(client_hostname, client_port) as socket_connection:
             socket_connection.send(message)
 
@@ -85,22 +81,6 @@ class CotServer:
             cot_config.model_dump(mode="python"): copy.deepcopy(cot_entry)
             for cot_config, cot_entry in self._cot_entries.items()
         }
-    
-
-    def _create_data_package(self, cot_config: CotConfig) -> str:
-        # create zip file as data package
-        data_package_path = os.path.join(self._directory, f"{hash(cot_config)}.zip")
-        zip_file = zipfile.ZipFile(data_package_path, "w", zipfile.ZIP_DEFLATED)
-
-        # compose manifest
-        manifest_text = compose_manifest(cot_config, data_package_path)
-
-        # write manifest and attachment files to zip file
-        zip_file.writestr(os.path.join("MANIFEST", "manifest.xml"), manifest_text)
-        for attachment_path in cot_config.attachment_paths:
-            zip_file.write(attachment_path)
-
-        return data_package_path
     
     
     def __enter__(self) -> "CotServer":
