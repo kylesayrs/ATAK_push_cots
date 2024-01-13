@@ -21,7 +21,7 @@ class CotConfig(BaseModel):
 
     callsign: str = Field(default="default_callsign", description="Callsign of event described by cot")
     attitude: str = Field(default="x", description="Attitude of cot type field")
-    dimension: str = Field(default="X", description="Dimension of cot type field")
+    dimension: str = Field(default="G", description="Dimension of cot type field")
     how: str = Field(default="m-g", description="Gives a hint about how the coordinates were generated")
 
     sender_callsign: str = Field(default="", description="Callsign of the entity sendering the cot")

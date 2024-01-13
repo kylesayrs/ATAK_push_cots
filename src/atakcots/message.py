@@ -57,7 +57,7 @@ def compose_message(
     # additional data
     detail = ElementTree.SubElement(event, "detail")
     contact = ElementTree.SubElement(detail, "contact")
-    #contact.set("callsign", cot_config.callsign)
+    contact.set("callsign", cot_config.callsign)
     _remarks = ElementTree.SubElement(detail, "remarks")  # TODO: add remarks
     _track = ElementTree.SubElement(detail, "track")  # TODO: add track
 
