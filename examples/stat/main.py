@@ -1,7 +1,6 @@
 import time
 from atakcots import CotConfig, CotServer
 
-
 if __name__ == "__main__":
     cot_config = CotConfig(
         uid="My_Message",
@@ -9,14 +8,14 @@ if __name__ == "__main__":
         longitude=137.120065
     )
         
-    server = CotServer("localhost", 8000)
-    print(server.stat())
+    with CotServer("localhost", 8000) as server:
+        print(server.stat())
+        # {}
 
-    server.push_cot(cot_config, "localhost", 8002)
-    print(server.stat())
+        server.push_cot(cot_config, "192.168.99.1", 8001)
+        print(server.stat())
+        # {CotConfig(uid='My_Message', ...): CotEntry(... client_requests=[])}
 
-    while server.stat()[cot_config].num_requests <= 0:
-        time.sleep(0.1)
-
-    server.close()
-    print(server.stat())
+        time.sleep(5)  # wait for client to request
+        print(server.stat())
+        # {CotConfig(uid='My_Message', ...): CotEntry(... client_requests=["192.168.1.1"])}

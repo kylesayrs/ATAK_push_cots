@@ -2,7 +2,6 @@ from typing import Optional, Union, List
 from pydantic import BaseModel, Field, field_validator
 
 import json
-import hashlib
 
 
 class CotConfig(BaseModel):

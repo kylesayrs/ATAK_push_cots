@@ -1,10 +1,9 @@
 from types import TracebackType
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 
 import os
 import copy
-import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from .CotConfig import CotConfig
 from .message import compose_message
@@ -15,7 +14,7 @@ from .SocketConnection import SocketConnection
 @dataclass
 class CotEntry:
     data_package_path: Optional[str] = None
-    num_requests: int = 0
+    client_requests: List[str] = field(default_factory=lambda: [])
 
 
 class CotServer:
@@ -24,12 +23,12 @@ class CotServer:
         hostname: str,
         port: int,
         data_package_dir: str = "/tmp/cot_server",
-        wait_req_before_close: bool = False
+        timeout: Optional[float] = None
     ):
         self._hostname = hostname
         self._port = port
         self._data_package_dir = data_package_dir
-        self._wait_req_before_close = wait_req_before_close
+        self._timeout = timeout
 
         os.makedirs(data_package_dir, exist_ok=True)
         self._cot_entries: Dict[CotConfig, CotEntry] = {}
@@ -41,19 +40,8 @@ class CotServer:
 
 
     def stop(self):
-        if self._wait_req_before_close:
-            while True:
-                cot_been_requested = [
-                    cot_entry.num_requests > 0
-                    for cot_entry in self._cot_entries.values()
-                ]
-
-                if all(cot_been_requested):
-                    return
-
-                time.sleep(0.1)
-
         # TODO: stop server and thread
+        pass
 
 
     def push_cot(
@@ -72,13 +60,13 @@ class CotServer:
         message = compose_message(self._hostname, self._port, cot_config, data_package_path)
 
         # Send message
-        with SocketConnection(client_hostname, client_port) as socket_connection:
+        with SocketConnection(client_hostname, client_port, self._timeout) as socket_connection:
             socket_connection.send(message)
 
 
     def stat(self) -> Dict[CotConfig, CotEntry]:
         return {
-            cot_config.model_dump(mode="python"): copy.deepcopy(cot_entry)
+            cot_config.model_copy(deep=True): copy.deepcopy(cot_entry)
             for cot_config, cot_entry in self._cot_entries.items()
         }
     
