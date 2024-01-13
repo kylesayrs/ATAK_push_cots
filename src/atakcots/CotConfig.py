@@ -13,8 +13,8 @@ class CotConfig(BaseModel):
     """
     
     uid: str = Field(description="")
-    latitude: float = Field(default=None, description="TODO")
-    longitude: float = Field(default=None, description="TODO")
+    latitude: float = Field(description="TODO")
+    longitude: float = Field(description="TODO")
 
     stale_duration: int = Field(default=600, description="Number of seconds before cot message becomes stale")
 

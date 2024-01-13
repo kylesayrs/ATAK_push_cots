@@ -23,7 +23,7 @@ attachments are entered and how manifest files are formatted.
 
 
 ## Usage ##
-Sending a standard CoT message can be done using the `push_cot` function
+Pushing a standard CoT message can be done using the `push_cot` function
 ```python
 from atakcots import CotConfig, push_cot
 
@@ -33,10 +33,10 @@ cot_config = CotConfig(
     longitude=137.120065
 )
     
-push_cot(cot_config, "192.168.99.1", 8001)
+push_cot(cot_config, "192.168.1.1", 8001)
 ```
 
-Sending CoTs which include attachments such as images must be done using `CotServer.push_cot`
+Pushing CoTs which include attachments such as images must be done using `CotServer.push_cot`
 ```python
 from atakcots import CotConfig, CotServer
 
@@ -48,12 +48,34 @@ cot_config = CotConfig(
 )
     
 with CotServer("localhost", 8000) as server:
-    server.push_cot(cot_config, "192.168.99.1", 8001)
-    server.push_cot(cot_config, "192.168.99.2", 8001)
-    server.push_cot(cot_config, "192.168.99.3", 8001)
+    server.push_cot(cot_config, "192.168.1.1", 8001)
+    server.push_cot(cot_config, "192.168.1.2", 8001)
+    server.push_cot(cot_config, "192.168.1.3", 8001)
 
     # you should keep the context alive for as long as
     # you want clients to receive the attachments
+```
+
+If you'd rather not use a context manager, you can use `start` and `stop` functions
+```python
+from atakcots import CotConfig, CotServer
+
+cot_config = CotConfig(
+    uid="My_Message",
+    latitude=34.850132,
+    longitude=137.120065,
+    attachment_paths="sandeot.png"
+)
+
+server = CotServer("localhost", 8000)
+server.start()
+
+server.push_cot(cot_config, "192.168.1.1", 8001)
+server.push_cot(cot_config, "192.168.1.2", 8001)
+server.push_cot(cot_config, "192.168.1.3", 8001)
+
+# stop when clients no longer need to receive attachments
+server.stop()
 ```
 
 You can monitor statistics such which clients have requested attachments using `CotServer.stat`
@@ -71,7 +93,7 @@ with CotServer("localhost", 8000) as server:
     print(server.stat())
     # {}
 
-    server.push_cot(cot_config, "192.168.99.1", 8001)
+    server.push_cot(cot_config, "192.168.1.1", 8001)
     print(server.stat())
     # {CotConfig(uid='My_Message', ...): CotEntry(... client_requests=[])}
 
@@ -83,10 +105,8 @@ with CotServer("localhost", 8000) as server:
 See `examples` for more use cases.
 
 
-## Future work ##
+## TODO ##
 1. Add file server in separate thread
 2. Have file server report statistics
 3. Double check manifest and message fields are necessary
 4. Add tests
-
-* Add support for additional data formats such as geojson 

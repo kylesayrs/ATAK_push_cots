@@ -40,28 +40,33 @@ def compose_message(
     now_string = datetime.datetime.utcnow().strftime(_DATETIME_FORMAT)
     stale = (now + datetime.timedelta(seconds=cot_config.stale_duration)).strftime(_DATETIME_FORMAT)
 
+    # create event
     event = ElementTree.Element("event")
-
     event.set("version", "2.0")
     event.set("uid", cot_config.uid)
+
+    # methodology data
     event.set("type", f"a-{cot_config.attitude}-{cot_config.dimension}")
-              
     event.set("how", cot_config.how)
+    
+    # time data
     event.set("start", now_string)
     event.set("time", now_string)
     event.set("stale", stale)
 
+    # additional data
     detail = ElementTree.SubElement(event, "detail")
     contact = ElementTree.SubElement(detail, "contact")
     contact.set("callsign", cot_config.callsign)
     _remarks = ElementTree.SubElement(detail, "remarks")  # TODO: add remarks
 
+    # attachments data
     if data_package_path is not None:
         fileshare = ElementTree.SubElement(detail, "fileshare")
 
         fileshare.set("name", os.path.basename(data_package_path))
         fileshare.set("filename", os.path.basename(data_package_path))
-        fileshare.set("senderUrl", f"http://{hostname}:{port}/getfile?file={hash(cot_config)}")
+        fileshare.set("senderUrl", f"http://{hostname}:{port}/{hash(cot_config)}.zip")
 
         fileshare.set("sizeInBytes", str(os.path.getsize(data_package_path)))
         fileshare.set("sha256", hash_file_sha256(data_package_path))
@@ -74,6 +79,7 @@ def compose_message(
         ackreq.set("ackrequested", "true")
         ackreq.set("tag", os.path.basename(data_package_path))
 
+    # location data
     point = ElementTree.SubElement(event, "point")
     point.set("le", "0.0")
     point.set("ce", "1.0")
