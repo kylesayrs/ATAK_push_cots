@@ -13,22 +13,21 @@ class CotConfig(BaseModel):
     """
     
     uid: str = Field(description="")
-    latitude: float = Field(description="TODO")
-    longitude: float = Field(description="TODO")
+    latitude: float = Field(description="Latitude referred to the WGS 84 ellipsoid in degrees")
+    longitude: float = Field(description="Longitude referred to the WGS 84 in degrees")
 
     stale_duration: int = Field(default=600, description="Number of seconds before cot message becomes stale")
 
-    callsign: str = Field(default="default callsign", description="TODO")
-    attitude: str = Field(default="x", description="TODO")
-    dimension: str = Field(default="G", description="TODO")
-    how: str = Field(default="m-g", description="TODO")
+    callsign: str = Field(default="default callsign", description="Callsign of event described by cot")
+    attitude: str = Field(default="x", description="Attitude of cot type field")
+    dimension: str = Field(default="X", description="Dimension of cot type field")
+    how: str = Field(default="m-g", description="Gives a hint about how the coordinates were generated")
 
-    sender_callsign: str = Field(default="", description="TODO")
-    sender_uid: str = Field(default="default_sender_uid", description="TODO")
+    sender_callsign: str = Field(default="", description="Callsign of the entity sendering the cot")
+    sender_uid: str = Field(default="default_sender_uid", description="Unique identifier of the entity sendering the cot")
 
-    manifest_name: str = Field(default="manifest", description="TODO")  # TODO: check, but pretty sure this is totally irrelevant
-    
-    attachment_paths: List[str] = Field(default=[], description="TODO")
+    package_name: str = Field(default="data_package", description="Name of data package which contains attachments")
+    attachment_paths: List[str] = Field(default=[], description="Paths to files to be attached to the cot. Can either be a string, a list of strings, or None")
     
 
     @field_validator("attachment_paths", mode="before")

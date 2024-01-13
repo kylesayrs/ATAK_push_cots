@@ -51,7 +51,7 @@ def compose_manifest(cot_config: CotConfig, data_package_path: str) -> str:
     config_uid.set("value", uuid.uuid4().hex)
     config_name = ElementTree.SubElement(config, "ParamElementTreeer")
     config_name.set("name", "name")
-    config_name.set("value", cot_config.manifest_name)  # TODO: Double check this is necessary
+    config_name.set("value", cot_config.package_name)
     config_del = ElementTree.SubElement(config, "ParamElementTreeer")
     config_del.set("name", "onReceiveDelElementTreee")
     config_del.set("value", "true")
