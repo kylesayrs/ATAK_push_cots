@@ -61,7 +61,7 @@ cot_config = CotConfig(
     uid="My_Message",
     latitude=34.850132,
     longitude=137.120065,
-    attachment_path="my_image.png"
+    attachment_paths="my_image.png"
 )
 
 with CotServer("localhost", 8000, directory="/tmp", wait_req_before_close=True) as server:
@@ -82,7 +82,7 @@ cot_config = CotConfig(
     uid="My_Message",
     latitude=34.850132,
     longitude=137.120065,
-    attachment_path="my_image.png"
+    attachment_paths="my_image.png"
 )
 server.push_cot(cot_config, "192.168.99.169", 8001)
 

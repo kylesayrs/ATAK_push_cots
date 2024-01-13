@@ -1,197 +1,102 @@
-from typing import Union, List
+from typing import Union, List, Optional, Dict
 
 import os
+import copy
+import time
+import zipfile
+from dataclasses import dataclass
+
+from CotConfig import CotConfig
+from message import compose_message
+from manifest import compose_manifest
+from SocketConnection import SocketConnection
+
+
+@dataclass
+class CotEntry:
+    data_package_path: Optional[str] = None
+    num_requests: int = 0
 
 
 class CoTServer:
     def __init__(
         self,
-        host: str,
+        hostname: str,
         port: int,
-        file_directory: str,
-        await_requests: bool = True,
-        clean_after_exit: bool = True
-    ) -> None:
-        self.file_directory = file_directory
-        
-        # begin serving in thread
+        directory: str = "/tmp/cot_server",
+        wait_req_before_close: bool = False
+    ):
+        self.hostname = hostname
+        self.port = port
+        self.directory = directory
+        self.wait_req_before_close = wait_req_before_close
 
-        # track all push_cot calls. List all calls with sender_uid and cot uid
-        # if await_requests, wait for all calls to get corresponding requests
-        # before exiting
-
-        if await_requests:
-            
+        os.makedirs(directory, exist_ok=True)
+        self.cot_entries: Dict[CotConfig, CotEntry] = {}
+    
+        # TODO: start file server in separate thread
 
 
     def push_cot(
         self,
-        uid: str,
-        latitude: int,
-        longitude: int,
-        attachment_path: Union[str, List[str]],
-        **cot_kwargs
+        cot_config: CotConfig,
+        client_hostname: str,
+        client_port: int
     ):
-        if uid in self._get_cot_uids():
-            raise ValueError("")
-
-        # create and save data package        
-        data_package_path = _create_data_package(attachment_path)
+        # create data package if new cot
+        if cot_config not in self.cot_entries:
+            data_package_path = self._create_data_package(cot_config)
+            self.cot_entries[cot_config] = CotEntry(data_package_path)
         
         # Compose message
-        message = composeMessage(uid, lat, lon, data_package_path)
+        data_package_path = self.cot_entries[cot_config].data_package_path
+        message = compose_message(cot_config, data_package_path)
 
         # Send message
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        conn = sock.connect((IP, PORT))
-        sock.send(message)
+        with SocketConnection(client_hostname, client_port) as socket_connection:
+            socket_connection.send(message)
 
 
-    def serve_forever(self):
-        while True:
-            pass  # catch keyboard interrupt
-
-
-    def exit(self):
-        pass
-
-
-    def __enter__(self):
-        pass
-
-
-    def __exit__(self):
-        pass
-
-
-    def _get_cot_uids(self):
-        return os.listdir(self.file_directory)
+    def stat(self) -> Dict[CotConfig, CotEntry]:
+        return {
+            cot_config.copy(): copy.deepcopy(cot_entry)
+            for cot_config, cot_entry in self.cots.items()
+        }
     
 
-    def _create_data_package() -> str:
-        # copy attachments, if any
+    def _create_data_package(self, cot_config: CotConfig) -> str:
+        # create zip file as data package
+        data_package_path = os.path.join(self.directory, f"{hash(cot_config)}.zip")
+        zip_file = zipfile.ZipFile(data_package_path, "w", zipfile.ZIP_DEFLATED)
 
         # compose manifest
-        manifest_text = composeManifest(uid, attachment_files)
-        os.makedirs(manifest_dir)
-        with open(manifest_path, 'wb') as manifest_file:
-            manifest_file.write(manifest_text)
+        manifest_text = compose_manifest(cot_config, data_package_path)
 
-        # zip file
+        # write manifest and attachment files to zip file
+        zip_file.writestr(manifest_text)
+        for attachment_path in cot_config.attachments_path:
+            zip_file.write(attachment_path)
 
-        return file_path
+        return data_package_path
+    
+    
+    def __enter__(self) -> "CoTServer":
+        return self
+    
 
+    def __exit__(self, _exc_type, _exc_val, _exc_tb):
+        print(type(_exc_type))
+        print(type(_exc_val))
+        print(type(_exc_tb))
 
-import os
-import socket
-import uuid
-import datetime
-import xml.etree.ElementTree as ET
-import hashlib
+        if self.wait_req_before_close:
+            while True:
+                cot_been_requested = [
+                    cot_entry.num_requests > 0
+                    for cot_entry in self.cot_entries
+                ]
 
-# Directories/files
-PACKAGE_FILE_NAME = 'package.zip'
+                if all(cot_been_requested):
+                    return
 
-# Connection to ATAK device
-IP = '192.168.99.199'
-PORT = 4242
-
-# Connection to file server
-SERVER_IP = '192.168.99.169'
-SERVER_PORT = 8001
-
-# Parameters that describe the map object
-# Guide: https://www.mitre.org/sites/default/files/pdf/09_4937.pdf
-ATTITUDE = 'x'
-DIMENSION = 'G'
-HOW = 'm-g'
-DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
-STALE_DURATION = 10
-CALLSIGN = 'Survivor'
-SENDER_UID = 'sender_uid'
-SENDER_CALLSIGN = 'Headquarters'
-FILESHARE_NAME = 'Attachment Datapack'
-
-
-def calcSize(file_path):
-    return os.path.getsize(file_path)
-
-# Stolen from: https://stackoverflow.com/questions/22058048/hashing-a-file-in-python
-def calcHash(file_path):
-    hash = hashlib.sha256()
-
-    with open(file_path, 'rb') as f:
-        data = f.read(65536)
-        while data:
-            hash.update(data)
-            data = f.read(65536)
-
-    return hash.hexdigest()
-
-
-import os
-import shutil
-import xml.etree.ElementTree as ET
-import uuid
-import magic
-import zipfile
-
-# Directories/files
-ATTACHMENTS_DIR = 'attachments'
-PACKAGE_DIR = '.package'
-PACKAGES_DIR = 'packages'
-PACKAGE_FILE_NAME = 'package.zip'
-
-# Arbitrary manifest parameters
-MANIFEST_NAME = 'Manifest Name'
-MANIFEST_UID = uuid.uuid4().hex
-
-def zipPackage(uid):
-    assert uid != 'MANIFEST'
-
-    attachment_dir = os.path.join(ATTACHMENTS_DIR, uid)
-    if os.path.isdir(attachment_dir):
-        # Clean package dir
-        if os.path.isdir(PACKAGE_DIR):
-            shutil.rmtree(PACKAGE_DIR)
-        os.makedirs(PACKAGE_DIR)
-
-        # Copy attachments
-        attachment_files = []
-        os.makedirs(os.path.join(PACKAGE_DIR, uid))
-        for file in os.listdir(attachment_dir):
-            file_path = os.path.join(attachment_dir, file)
-            if file[0] == '.': continue
-            if not os.path.isfile(file_path): continue
-
-            dst_path = os.path.join(PACKAGE_DIR, uid, file)
-            shutil.copy2(file_path, dst_path, follow_symlinks=True)
-
-            attachment_files.append(file)
-
-        # Write manifest
-        manifest_dir = os.path.join(PACKAGE_DIR, 'MANIFEST')
-        manifest_path = os.path.join(manifest_dir, 'manifest.xml')
-        manifest_text = composeManifest(uid, attachment_files)
-        os.makedirs(manifest_dir)
-        with open(manifest_path, 'wb') as manifest_file:
-            manifest_file.write(manifest_text)
-
-        # Clean destination dir
-        zip_dst_dir = os.path.join(PACKAGES_DIR, uid)
-        if os.path.isdir(zip_dst_dir):
-            shutil.rmtree(zip_dst_dir)
-        os.makedirs(zip_dst_dir)
-
-        # Zip file
-        zip_dst_path = os.path.join(zip_dst_dir, PACKAGE_FILE_NAME)
-        zip_file = zipfile.ZipFile(zip_dst_path, 'w', zipfile.ZIP_DEFLATED)
-        zip_file.write(os.path.join(PACKAGE_DIR, 'MANIFEST', 'manifest.xml'), os.path.join('MANIFEST', 'manifest.xml'))
-        for file in attachment_files:
-            zip_file.write(os.path.join(PACKAGE_DIR, uid, file), os.path.join(uid, file))
-        zip_file.close()
-
-        return zip_dst_path
-
-    else:
-        print("WARNING: No attachments for {uid}".format(uid=uid))
+                time.sleep(0.1)

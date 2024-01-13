@@ -8,7 +8,7 @@ _deps = [
 ]
 
 setup(
-    name="atak_cots",
+    name="atakcots",
     version="1.0",
     author="Kyle Sayers",
     description="",
@@ -17,8 +17,8 @@ setup(
     packages=find_packages("src", include=["atak_cots"], exclude=["*.__pycache__.*"]),
     entry_points={
         "console_scripts": [
-            "atak_cots.CoTServer.serve = atak_cots.scripts.serve:main",
-            "atak_cots.CoTServer.pushCot = atak_cots.scripts.push:main"
+            "atakcots.CoTServer.serve = atak_cots.scripts.serve:main",
+            "atakcots.CoTServer.pushCot = atak_cots.scripts.push:main"
         ],
     },
 )
