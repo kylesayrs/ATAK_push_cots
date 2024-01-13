@@ -3,7 +3,7 @@ import mimetypes
 import xml.etree.ElementTree as ElementTree
 
 
-from CotConfig import CotConfig
+from .CotConfig import CotConfig
 
 
 def compose_manifest(cot_config: CotConfig, data_package_path: str) -> str:

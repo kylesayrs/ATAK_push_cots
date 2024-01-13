@@ -1,6 +1,7 @@
 
 import socket
 
+
 class SocketConnection:
     def __init__(self, hostname: str, port: int) -> None:
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

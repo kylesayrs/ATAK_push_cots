@@ -1,14 +1,10 @@
-from atak_cots import CoTServer
+from atak_cots import CotServer
 
 
 if __name__ == '__main__':
-    with CoTServer(host, port, file_directory, await_requests=True) as cot_server:
-        cot_server.push_cot(
-            "CoT UID",
-            34.850132,
-            137.120065,
-            attachment,
-            callsign="Test CoT"
-        )
+    with CotServer("localhost", 8000, directory="/tmp", wait_req_before_close=True) as server:
+        server.push_cot(cot_config, "192.168.99.169", 8001)
+        server.push_cot(cot_config, "192.168.99.169", 8001)
+        server.push_cot(cot_config, "192.168.99.169", 8001)
 
         #cot_server.serve_forever()

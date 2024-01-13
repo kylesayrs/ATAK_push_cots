@@ -6,7 +6,7 @@ import hashlib
 import datetime
 import xml.etree.ElementTree as ElementTree
 
-from CotConfig import CotConfig
+from .CotConfig import CotConfig
 
 
 _DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"

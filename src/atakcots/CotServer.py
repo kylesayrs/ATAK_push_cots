@@ -6,10 +6,10 @@ import time
 import zipfile
 from dataclasses import dataclass
 
-from CotConfig import CotConfig
-from message import compose_message
-from manifest import compose_manifest
-from SocketConnection import SocketConnection
+from .CotConfig import CotConfig
+from .message import compose_message
+from .manifest import compose_manifest
+from .SocketConnection import SocketConnection
 
 
 @dataclass
