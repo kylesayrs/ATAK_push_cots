@@ -81,7 +81,7 @@ class CotServer:
         self,
         cot_config: CotConfig,
         client_hostname: str,
-        client_port: int
+        client_port: int = 8080
     ):
         """
         Push cursor on target message to client with associated data package
