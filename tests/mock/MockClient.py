@@ -22,7 +22,6 @@ class RecordingTCPHandler(socketserver.BaseRequestHandler):
 
 class MockClient(socketserver.TCPServer):
     def __init__(self, server_address: Tuple[str, int], verbose: bool = False):
-        super().__init__(server_address, RecordingTCPHandler)
         self.server_address = server_address
         self.verbose = verbose
 
@@ -30,6 +29,8 @@ class MockClient(socketserver.TCPServer):
         self.request_data = []
 
         self._thread = None
+
+        super().__init__(server_address, RecordingTCPHandler)
 
 
     def server_close(self):
