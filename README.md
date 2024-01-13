@@ -88,6 +88,5 @@ See `examples` for more use cases.
 2. Have file server report statistics
 3. Double check manifest and message fields are necessary
 4. Add tests
-5. Add documentation
 
 * Add support for additional data formats such as geojson 
