@@ -77,7 +77,4 @@ class CotServer:
     
 
     def __exit__(self, _exc_type: type, exc_value: Exception, _exc_tb: TracebackType):
-        if exc_value is not None:
-            raise exc_value
-
         self.stop()
