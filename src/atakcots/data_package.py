@@ -8,6 +8,15 @@ from .CotConfig import CotConfig
 
 
 def create_data_package(cot_config: CotConfig, directory: str) -> str:
+    """
+    Creates a zip file which serves as a data package. The zip file contains
+    a manifest file which describes how to handle the data in the package as
+    well as all the attachments which are served as a part of the cot message.
+
+    :param cot_config: cursor on target message information
+    :param directory: directory in which data package file should be stored 
+    :return: path to data package file in directory
+    """
     # create zip file as data package
     data_package_path = os.path.join(directory, f"{hash(cot_config)}.zip")
     zip_file = zipfile.ZipFile(data_package_path, "w", zipfile.ZIP_DEFLATED)
@@ -18,12 +27,21 @@ def create_data_package(cot_config: CotConfig, directory: str) -> str:
     # write manifest and attachment files to zip file
     zip_file.writestr(os.path.join("MANIFEST", "manifest.xml"), manifest_text)
     for attachment_path in cot_config.attachment_paths:
-        zip_file.write(attachment_path)
+        # arcname should match the zipEntry value in the manifest
+        zip_file.write(attachment_path, hash(attachment_path))
 
     return data_package_path
 
 
 def compose_manifest(cot_config: CotConfig, data_package_path: str) -> str:
+    """
+    Compose a manifest file which describes to the atak client what attachments
+    are available and how to handle them
+
+    :param cot_config: cursor on target message information
+    :param data_package_path: path to data package file
+    :return: string representing manifest xml data
+    """
     mpm = ElementTree.Element("MissionPackageManifest")
     mpm.set("version", "2")
 
@@ -42,11 +60,11 @@ def compose_manifest(cot_config: CotConfig, data_package_path: str) -> str:
     for attachment_path in cot_config.attachment_paths:
         content = ElementTree.SubElement(contents, "Content")
         content.set("ignore", "false")
-        content.set("zipEntry", data_package_path)
+        content.set("zipEntry", hash(attachment_path))  # zipEntry should match the arcname specified when writing the file to the zip
 
         content_uid = ElementTree.SubElement(content, "ParamElementTreeer") # TODO: Double check this is necessary
         content_uid.set("name", "uid")
-        content_uid.set("value", cot_config.uid)
+        content_uid.set("value", cot_config.uid)  # TODO: double check this is the uid of the cot, not the uid of the content
 
         content_iscot = ElementTree.SubElement(content, "ParamElementTreeer") # Marks as attachment
         content_iscot.set("name", "isCoT")
@@ -56,5 +74,4 @@ def compose_manifest(cot_config: CotConfig, data_package_path: str) -> str:
         content_mime.set("name", "contentType")
         content_mime.set("value", mimetypes.guess_type(attachment_path))
 
-    # create a new XML file with the results
     return ElementTree.tostring(mpm)

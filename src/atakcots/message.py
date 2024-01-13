@@ -13,17 +13,33 @@ _DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 
 
 def compose_message(
-    hostname: str,
-    port: int,
     cot_config: CotConfig,
+    hostname: Optional[str] = None,
+    port: Optional[int] = None,
     data_package_path: Optional[str] = None
 ) -> str:
-    # Initialize CoT parameters
+    """
+    Compose a cursor on target message. Specify all of hostname, port, and
+    data_package_path to instruct the client to request attachments from
+    the data package server
+
+    :param cot_config: cursor on target message information
+    :param hostname: data package file server hostname
+    :param port: data package file server port
+    :param data_package_path: path to data package file
+    :return: string representing cursor on target xml data
+    """
+    dp_args_none = [hostname is None, port is None, data_package_path is None]
+    if any(dp_args_none) and not all(dp_args_none):
+        raise ValueError(
+            "Must specify all data package arguments `hostname`, `port`, "
+            "`data_package_path`, or none at all"
+        )
+
     now = datetime.datetime.utcnow()
     now_string = datetime.datetime.utcnow().strftime(_DATETIME_FORMAT)
     stale = (now + datetime.timedelta(seconds=cot_config.stale_duration)).strftime(_DATETIME_FORMAT)
 
-    # Build XML
     event = ElementTree.Element("event")
 
     event.set("version", "2.0")
@@ -48,7 +64,7 @@ def compose_message(
         fileshare.set("senderUrl", f"http://{hostname}:{port}/getfile?file={hash(cot_config)}")
 
         fileshare.set("sizeInBytes", str(os.path.getsize(data_package_path)))
-        fileshare.set("sha256", get_file_hash(data_package_path))
+        fileshare.set("sha256", hash_file_sha256(data_package_path))
 
         fileshare.set("senderUid", cot_config.sender_uid)
         fileshare.set("senderCallsign", cot_config.sender_callsign)
@@ -68,14 +84,18 @@ def compose_message(
     return ElementTree.tostring(event)
 
 
-# Stolen from: https://stackoverflow.com/questions/22058048/hashing-a-file-in-python
-def get_file_hash(file_path: str) -> str:
-    hash = hashlib.sha256()
+def hash_file_sha256(file_path: str, chunk_size: int = 65536) -> str:
+    """
+    Hash a file using sha256 with set chunk size
 
-    with open(file_path, 'rb') as f:
-        data = f.read(65536)
-        while data:
-            hash.update(data)
-            data = f.read(65536)
+    :param file_path: path to file being hashed
+    :param chunk_size: hash chunk size, use 65536 for cot application
+    :return: hex string representation of sha256 hash
+    """
+    _hash = hashlib.sha256()
 
-    return hash.hexdigest()
+    with open(file_path, "rb") as file:
+        while data := file.read(chunk_size):
+            _hash.update(data)
+
+    return _hash.hexdigest()

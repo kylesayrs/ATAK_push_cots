@@ -4,6 +4,14 @@ from .SocketConnection import SocketConnection
 
 
 def push_cot(cot_config: CotConfig, client_hostname: str, client_port: int):
+    """
+    Push cursor on target message to client. For cot messages with attachments,
+    see `CotServer.push_cot`.
+
+    :param cot_config: cursor on target message information
+    :param client_hostname: cot destination hostname
+    :param client_port: cot destination port
+    """
     # Validate config
     if len(cot_config.attachment_paths) > 0:
         raise ValueError(
