@@ -1,3 +1,4 @@
+from types import TracebackType
 from typing import Union, List, Optional, Dict
 
 import os
@@ -18,7 +19,7 @@ class CotEntry:
     num_requests: int = 0
 
 
-class CoTServer:
+class CotServer:
     def __init__(
         self,
         hostname: str,
@@ -73,27 +74,23 @@ class CoTServer:
         manifest_text = compose_manifest(cot_config, data_package_path)
 
         # write manifest and attachment files to zip file
-        zip_file.writestr(manifest_text)
-        for attachment_path in cot_config.attachments_path:
+        zip_file.writestr(os.path.join("MANIFEST", "manifest.xml"), manifest_text)
+        for attachment_path in cot_config.attachment_paths:
             zip_file.write(attachment_path)
 
         return data_package_path
     
     
-    def __enter__(self) -> "CoTServer":
+    def __enter__(self) -> "CotServer":
         return self
     
 
-    def __exit__(self, _exc_type, _exc_val, _exc_tb):
-        print(type(_exc_type))
-        print(type(_exc_val))
-        print(type(_exc_tb))
-
+    def __exit__(self, _exc_type: type, _exc_val: TypeError, _exc_tb: TracebackType):
         if self.wait_req_before_close:
             while True:
                 cot_been_requested = [
                     cot_entry.num_requests > 0
-                    for cot_entry in self.cot_entries
+                    for cot_entry in self.cot_entries.values()
                 ]
 
                 if all(cot_been_requested):

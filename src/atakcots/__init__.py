@@ -1,2 +1,2 @@
 from .CotConfig import CotConfig
-from .CotServer import CoTServer, CotEntry
+from .CotServer import CotServer, CotEntry

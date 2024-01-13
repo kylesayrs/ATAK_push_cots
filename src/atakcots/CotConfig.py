@@ -1,6 +1,7 @@
 from typing import Optional, Union, List
 from pydantic import BaseModel, Field, field_validator
 
+import json
 import hashlib
 
 
@@ -36,5 +37,6 @@ class CotConfig(BaseModel):
 
 
     def __hash__(self) -> bytes:
-        bytes_repr = bytes(self.dict(), "utf-8")
-        return hashlib.md5(bytes_repr)
+        dict_repr = self.model_dump(mode="json")
+        str_repr = json.dumps(dict_repr)
+        return hash(str_repr)

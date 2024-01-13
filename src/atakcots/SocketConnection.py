@@ -1,3 +1,4 @@
+from types import TracebackType
 
 import socket
 
@@ -16,11 +17,8 @@ class SocketConnection:
         return self
     
 
-    def __exit__(self, _exc_type, _exc_val, _exc_tb):
-        print(type(_exc_type))
-        print(type(_exc_val))
-        print(type(_exc_tb))
-        raise NotImplementedError()
+    def __exit__(self, _exc_type: type, _exc_val: TypeError, _exc_tb: TracebackType):
+        self._socket.close()
 
 
 if __name__ == "__main__":
