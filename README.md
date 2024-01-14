@@ -13,17 +13,7 @@ For troubleshooting, create an issue or ask on the [reddit](https://www.reddit.c
 is super friendly.
 
 
-## Implementation ##
-CoT messages with file attachments work by first sending a standard CoT along with
-a link to a file sharing endpoint. This endpoint serves ATAK data packages, which
-can be downloaded by ATAK and attached to the CoT.
-
-Data packages are zip files containing attachments, (CoT messages if desired),
-and a manifest file. Look at the implementation for more information on how
-attachments are entered and how manifest files are formatted.
-
-
-## Installation ##
+## Install ##
 ```bash
 git clone https://github.com/kylesayrs/ATAK_push_cots
 cd ATAK_push_cots
@@ -88,7 +78,3 @@ server.stop()
 ```
 
 See `examples` for more use cases.
-
-
-## TODO ##
-1. Double check manifest and message fields are necessary
