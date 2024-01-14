@@ -42,7 +42,7 @@ cot_config = CotConfig(
     longitude=-73.96791282024928
 )
     
-push_cot(cot_config, "192.168.0.1")
+push_cot(cot_config, "192.168.0.2")
 ```
 
 Pushing CoTs which include attachments such as images must be done using `CotServer.push_cot`
