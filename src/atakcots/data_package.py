@@ -22,7 +22,7 @@ def create_data_package(cot_config: CotConfig, directory: str) -> str:
     zip_file = zipfile.ZipFile(data_package_path, "w", zipfile.ZIP_DEFLATED)
 
     # compose manifest
-    manifest_text = compose_manifest(cot_config, data_package_path)
+    manifest_text = compose_manifest(cot_config)
 
     # write manifest and attachment files to zip file
     zip_file.writestr(os.path.join("MANIFEST", "manifest.xml"), manifest_text)
@@ -33,7 +33,7 @@ def create_data_package(cot_config: CotConfig, directory: str) -> str:
     return data_package_path
 
 
-def compose_manifest(cot_config: CotConfig, data_package_path: str) -> str:
+def compose_manifest(cot_config: CotConfig) -> str:
     """
     Compose a manifest file which describes to the atak client what attachments
     are available and how to handle them

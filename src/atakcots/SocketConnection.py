@@ -8,14 +8,14 @@ class SocketConnection:
     """
     Wraps tcp socket with context
 
-    :param hostname: hostname for socket connection
+    :param address: address for socket connection
     :param port: port for socket connection
     :param timeout: tcp socket connection timeout
     """
-    def __init__(self, hostname: str, port: int, timeout: Optional[float] = None):
+    def __init__(self, address: str, port: int, timeout: Optional[float] = None):
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._socket.settimeout(timeout)
-        self._socket.connect((hostname, port))
+        self._socket.connect((address, port))
 
 
     def send(self, message: str):

@@ -14,25 +14,25 @@ _DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ" #"%Y-%m-%dT%H:%M:%SZ"
 
 def compose_message(
     cot_config: CotConfig,
-    hostname: Optional[str] = None,
+    address: Optional[str] = None,
     port: Optional[int] = None,
     data_package_path: Optional[str] = None
 ) -> str:
     """
-    Compose a cursor on target message. Specify all of hostname, port, and
+    Compose a cursor on target message. Specify all of address, port, and
     data_package_path to instruct the client to request attachments from
     the data package server
 
     :param cot_config: cursor on target message information
-    :param hostname: data package file server hostname
+    :param address: data package file server address
     :param port: data package file server port
     :param data_package_path: path to data package file
     :return: string representing cursor on target xml data
     """
-    dp_args_none = [hostname is None, port is None, data_package_path is None]
+    dp_args_none = [address is None, port is None, data_package_path is None]
     if any(dp_args_none) and not all(dp_args_none):
         raise ValueError(
-            "Must specify all data package arguments `hostname`, `port`, "
+            "Must specify all data package arguments `address`, `port`, "
             "`data_package_path`, or none at all"
         )
 
@@ -67,7 +67,7 @@ def compose_message(
 
         fileshare.set("name", os.path.basename(data_package_path))
         fileshare.set("filename", os.path.basename(data_package_path))
-        fileshare.set("senderUrl", f"http://{hostname}:{port}/{hash(cot_config):x}.zip")
+        fileshare.set("senderUrl", f"http://{address}:{port}/{hash(cot_config):x}.zip")
 
         fileshare.set("sizeInBytes", str(os.path.getsize(data_package_path)))
         fileshare.set("sha256", hash_file_sha256(data_package_path))

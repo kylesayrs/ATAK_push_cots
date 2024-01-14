@@ -7,19 +7,19 @@ from tests.mock import MockClient
 
 
 # use global variables rather than fixtures for cleaner helper functions
-_TEST_HOSTNAME = "localhost"
+_TEST_ADDRESS = "localhost"
 _TEST_CLIENT_PORT = 8001
 
 
 def test_push_cot():
-    with MockClient((_TEST_HOSTNAME, _TEST_CLIENT_PORT)) as mock_client:
+    with MockClient((_TEST_ADDRESS, _TEST_CLIENT_PORT)) as mock_client:
         cot_config = CotConfig(
             uid="test_uid",
             latitude=0.0,
             longitude=0.0
         )
 
-        push_cot(cot_config, _TEST_HOSTNAME, _TEST_CLIENT_PORT)
+        push_cot(cot_config, _TEST_ADDRESS, _TEST_CLIENT_PORT)
         time.sleep(0.1)  # wait for cot to be transmitted
 
         assert len(mock_client.connections) == 1
@@ -41,7 +41,7 @@ def test_push_cot_attachments():
     )
 
     with pytest.raises(ValueError):
-        push_cot(cot_config, _TEST_HOSTNAME, _TEST_CLIENT_PORT)
+        push_cot(cot_config, _TEST_ADDRESS, _TEST_CLIENT_PORT)
 
 
 # TODO: multiple cot clients

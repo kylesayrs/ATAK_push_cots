@@ -56,10 +56,10 @@ cot_config = CotConfig(
     attachment_paths="sandeot.png"
 )
     
-with CotServer("localhost", 8000) as server:
-    server.push_cot(cot_config, "192.168.0.1")
+with CotServer("192.168.0.1", 8000) as server:
     server.push_cot(cot_config, "192.168.0.2")
     server.push_cot(cot_config, "192.168.0.3")
+    server.push_cot(cot_config, "192.168.0.4")
 
     # you should keep the context alive for as long as
     # you want clients to receive the attachments
@@ -76,12 +76,12 @@ cot_config = CotConfig(
     attachment_paths="sandeot.png"
 )
 
-server = CotServer("localhost", 8000)
+server = CotServer("192.168.0.1", 8000)
 server.start()
 
-server.push_cot(cot_config, "192.168.0.1")
 server.push_cot(cot_config, "192.168.0.2")
 server.push_cot(cot_config, "192.168.0.3")
+server.push_cot(cot_config, "192.168.0.4")
 
 # stop when clients no longer need to receive attachments
 server.stop()

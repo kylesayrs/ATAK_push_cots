@@ -3,6 +3,7 @@ from typing import Optional, Dict
 
 import os
 import shutil
+import warnings
 import http.server
 from threading import Thread
 from functools import partial
@@ -21,22 +22,22 @@ class CotServer:
 
     ```
     with CotServer("localhost", 8000) as server:
-        server.push_cot(cot_config, "client_hostname", 8001)
+        server.push_cot(cot_config, "client_address", 8001)
     ```
 
-    :param hostname: hostname where cot data packages are served from
+    :param address: address where cot data packages are served from
     :param port: port where cot data packages are served from
     :param data_package_dir: path to directory where data package files are stored
     :param timeout: defines timeout for sending cot messages over tcp socket
     """
     def __init__(
         self,
-        hostname: str,
+        address: str,
         port: int,
         data_package_dir: str = "/tmp/cot_server",
         timeout: Optional[float] = None
     ):
-        self._hostname = hostname
+        self._address = address
         self._port = port
         self._data_package_dir = data_package_dir
         self._timeout = timeout
@@ -48,6 +49,12 @@ class CotServer:
 
         self._cot_dp_paths: Dict[CotConfig, str] = {}
 
+        if address in ["localhost", "172.0.0.1"]:
+            warnings.warn(
+                "Loopback addresses are unreachable by most TAK clients. "
+                "Instead use the assigned public or local network ip address"
+            )
+
     
     def start(self):
         """
@@ -56,7 +63,7 @@ class CotServer:
         """
         # reinitialize file server to allow restarting
         handler = partial(http.server.SimpleHTTPRequestHandler, directory=self._data_package_dir)
-        self._file_server = http.server.HTTPServer((self._hostname, self._port), handler)
+        self._file_server = http.server.HTTPServer((self._address, self._port), handler)
         self._file_server_thread = Thread(target=self._file_server.serve_forever)
         self._file_server_thread.start()
 
@@ -80,14 +87,14 @@ class CotServer:
     def push_cot(
         self,
         cot_config: CotConfig,
-        client_hostname: str,
+        client_address: str,
         client_port: int = 8080
     ):
         """
         Push cursor on target message to client with associated data package
 
         :param cot_config: cursor on target message information
-        :param client_hostname: cot destination hostname
+        :param client_address: cot destination address
         :param client_port: cot destination port
         """
         # create data package if new cot
@@ -97,10 +104,10 @@ class CotServer:
         
         # Compose message
         data_package_path = self._cot_dp_paths[cot_config]
-        message = compose_message(cot_config, self._hostname, self._port, data_package_path)
+        message = compose_message(cot_config, self._address, self._port, data_package_path)
 
         # Send message
-        with SocketConnection(client_hostname, client_port, self._timeout) as socket_connection:
+        with SocketConnection(client_address, client_port, self._timeout) as socket_connection:
             socket_connection.send(message)
     
 
