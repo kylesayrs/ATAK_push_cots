@@ -19,9 +19,6 @@ def create_data_package(cot_config: CotConfig, directory: str) -> str:
     """
     # create zip file as data package
     data_package_path = os.path.join(directory, f"{hash(cot_config):x}.zip")
-    # TODO: check if necessary
-    if os.path.exists(data_package_path):
-        os.remove(data_package_path)
     zip_file = zipfile.ZipFile(data_package_path, "w", zipfile.ZIP_DEFLATED)
 
     # compose manifest
@@ -65,15 +62,11 @@ def compose_manifest(cot_config: CotConfig) -> str:
         content.set("ignore", "false")
         content.set("zipEntry", get_attachment_arcname(cot_config, attachment_path))
 
-        content_uid = ElementTree.SubElement(content, "Parameter") # TODO: Double check this is necessary
+        content_uid = ElementTree.SubElement(content, "Parameter")
         content_uid.set("name", "uid")
         content_uid.set("value", cot_config.uid)
 
-        content_iscot = ElementTree.SubElement(content, "Parameter") # Marks as attachment
-        content_iscot.set("name", "isCoT")
-        content_iscot.set("value", "false")
-
-        content_mime = ElementTree.SubElement(content, "Parameter") # Mime type
+        content_mime = ElementTree.SubElement(content, "Parameter")
         content_mime.set("name", "contentType")
         content_mime.set("value", mimetypes.guess_type(attachment_path)[0])
 
