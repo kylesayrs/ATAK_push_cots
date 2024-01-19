@@ -9,12 +9,7 @@ if __name__ == "__main__":
         attachment_paths="sandeot.png"
     )
         
-    with CotServer("localhost", 8000) as server:
-        server.push_cot(cot_config, "192.168.0.1")
-        server.push_cot(cot_config, "192.168.0.2")
-        server.push_cot(cot_config, "192.168.0.3")
+    with CotServer("10.80.1.19", 8000) as server:
+        server.push_cot(cot_config, "10.80.1.71", 4242)
 
-        try:
-            while True: pass
-        except KeyboardInterrupt:
-            pass
+        while True: pass

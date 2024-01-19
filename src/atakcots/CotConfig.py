@@ -12,7 +12,7 @@ class CotConfig(BaseModel):
         https://www.mitre.org/sites/default/files/pdf/09_4937.pdf    
     """
     
-    uid: str = Field(description="")
+    uid: str = Field(description="") # TODO: use uuid4 and validator, use callsign in examples
     latitude: float = Field(description="Latitude referred to the WGS 84 ellipsoid in degrees")
     longitude: float = Field(description="Longitude referred to the WGS 84 in degrees")
     altitude: float = Field(default= 0.0, description="Height above the WGS ellipsoid in meters")

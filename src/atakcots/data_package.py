@@ -19,6 +19,9 @@ def create_data_package(cot_config: CotConfig, directory: str) -> str:
     """
     # create zip file as data package
     data_package_path = os.path.join(directory, f"{hash(cot_config):x}.zip")
+    # TODO: check if necessary
+    if os.path.exists(data_package_path):
+        os.remove(data_package_path)
     zip_file = zipfile.ZipFile(data_package_path, "w", zipfile.ZIP_DEFLATED)
 
     # compose manifest
@@ -28,7 +31,7 @@ def create_data_package(cot_config: CotConfig, directory: str) -> str:
     zip_file.writestr(os.path.join("MANIFEST", "manifest.xml"), manifest_text)
     for attachment_path in cot_config.attachment_paths:
         # arcname should match the zipEntry value in the manifest
-        zip_file.write(attachment_path, f"{hash(attachment_path):x}")
+        zip_file.write(attachment_path, f"{hash(attachment_path):x}{os.path.splitext(attachment_path)[1]}")
 
     return data_package_path
 
@@ -60,7 +63,7 @@ def compose_manifest(cot_config: CotConfig) -> str:
     for attachment_path in cot_config.attachment_paths:
         content = ElementTree.SubElement(contents, "Content")
         content.set("ignore", "false")
-        content.set("zipEntry", f"{hash(attachment_path):x}")  # zipEntry should match the arcname specified when writing the file to the zip
+        content.set("zipEntry", f"{hash(attachment_path):x}{os.path.splitext(attachment_path)[1]}")  # zipEntry should match the arcname specified when writing the file to the zip
 
         content_uid = ElementTree.SubElement(content, "ParamElementTreeer") # TODO: Double check this is necessary
         content_uid.set("name", "uid")
@@ -72,6 +75,6 @@ def compose_manifest(cot_config: CotConfig) -> str:
 
         content_mime = ElementTree.SubElement(content, "ParamElementTreeer") # Mime type
         content_mime.set("name", "contentType")
-        content_mime.set("value", mimetypes.guess_type(attachment_path))
+        content_mime.set("value", mimetypes.guess_type(attachment_path)[0])
 
     return ElementTree.tostring(mpm)
