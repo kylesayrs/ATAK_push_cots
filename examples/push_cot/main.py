@@ -8,4 +8,4 @@ if __name__ == "__main__":
         longitude=-73.96791282024928
     )
 
-    push_cot(cot_config, "192.168.0.1")
+    push_cot(cot_config, "10.80.1.71")

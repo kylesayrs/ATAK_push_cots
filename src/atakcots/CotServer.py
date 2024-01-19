@@ -22,7 +22,7 @@ class CotServer:
 
     ```
     with CotServer("localhost", 8000) as server:
-        server.push_cot(cot_config, "client_address", 8001)
+        server.push_cot(cot_config, "client_address", 4242)
     ```
 
     :param address: address where cot data packages are served from
@@ -88,7 +88,7 @@ class CotServer:
         self,
         cot_config: CotConfig,
         client_address: str,
-        client_port: int = 8080
+        client_port: int = 4242
     ):
         """
         Push cursor on target message to client with associated data package
@@ -105,7 +105,6 @@ class CotServer:
         # Compose message
         data_package_path = self._cot_dp_paths[cot_config]
         message = compose_message(cot_config, self._address, self._port, data_package_path)
-        print(message)
 
         # Send message
         with SocketConnection(client_address, client_port, self._timeout) as socket_connection:

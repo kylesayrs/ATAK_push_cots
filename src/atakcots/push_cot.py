@@ -3,7 +3,7 @@ from .message import compose_message
 from .SocketConnection import SocketConnection
 
 
-def push_cot(cot_config: CotConfig, client_address: str, client_port: int = 8080):
+def push_cot(cot_config: CotConfig, client_address: str, client_port: int = 4242):
     """
     Push cursor on target message to client. For cot messages with attachments,
     see `CotServer.push_cot`.
