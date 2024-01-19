@@ -31,7 +31,7 @@ def create_data_package(cot_config: CotConfig, directory: str) -> str:
     zip_file.writestr(os.path.join("MANIFEST", "manifest.xml"), manifest_text)
     for attachment_path in cot_config.attachment_paths:
         # arcname should match the zipEntry value in the manifest
-        zip_file.write(attachment_path, f"{hash(attachment_path):x}{os.path.splitext(attachment_path)[1]}")
+        zip_file.write(attachment_path, get_attachment_arcname(cot_config, attachment_path))
 
     return data_package_path
 
@@ -49,13 +49,13 @@ def compose_manifest(cot_config: CotConfig) -> str:
     mpm.set("version", "2")
 
     config = ElementTree.SubElement(mpm, "Configuration")
-    config_uid = ElementTree.SubElement(config, "ParamElementTreeer")
+    config_uid = ElementTree.SubElement(config, "Parameter")
     config_uid.set("name", "uid")
     config_uid.set("value", uuid.uuid4().hex)
-    config_name = ElementTree.SubElement(config, "ParamElementTreeer")
+    config_name = ElementTree.SubElement(config, "Parameter")
     config_name.set("name", "name")
     config_name.set("value", cot_config.package_name)
-    config_del = ElementTree.SubElement(config, "ParamElementTreeer")
+    config_del = ElementTree.SubElement(config, "Parameter")
     config_del.set("name", "onReceiveDelElementTreee")
     config_del.set("value", "true")
 
@@ -63,18 +63,28 @@ def compose_manifest(cot_config: CotConfig) -> str:
     for attachment_path in cot_config.attachment_paths:
         content = ElementTree.SubElement(contents, "Content")
         content.set("ignore", "false")
-        content.set("zipEntry", f"{hash(attachment_path):x}{os.path.splitext(attachment_path)[1]}")  # zipEntry should match the arcname specified when writing the file to the zip
+        content.set("zipEntry", get_attachment_arcname(cot_config, attachment_path))
 
-        content_uid = ElementTree.SubElement(content, "ParamElementTreeer") # TODO: Double check this is necessary
+        content_uid = ElementTree.SubElement(content, "Parameter") # TODO: Double check this is necessary
         content_uid.set("name", "uid")
-        content_uid.set("value", cot_config.uid)  # TODO: double check this is the uid of the cot, not the uid of the content
+        content_uid.set("value", cot_config.uid)
 
-        content_iscot = ElementTree.SubElement(content, "ParamElementTreeer") # Marks as attachment
+        content_iscot = ElementTree.SubElement(content, "Parameter") # Marks as attachment
         content_iscot.set("name", "isCoT")
         content_iscot.set("value", "false")
 
-        content_mime = ElementTree.SubElement(content, "ParamElementTreeer") # Mime type
+        content_mime = ElementTree.SubElement(content, "Parameter") # Mime type
         content_mime.set("name", "contentType")
         content_mime.set("value", mimetypes.guess_type(attachment_path)[0])
 
     return ElementTree.tostring(mpm)
+
+
+def get_attachment_arcname(cot_config: CotConfig, attachment_path: str) -> str:
+    """
+    CoT attachments must be placed in a folder with the CoT uid
+    """
+    path_hash = hash(attachment_path)
+    extension = os.path.splitext(attachment_path)[1]
+
+    return os.path.join(cot_config.uid, f"{path_hash}{extension}")

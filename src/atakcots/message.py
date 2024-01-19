@@ -9,7 +9,7 @@ import xml.etree.ElementTree as ElementTree
 from .CotConfig import CotConfig
 
 
-_DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ" #"%Y-%m-%dT%H:%M:%SZ"
+_DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%fZ"
 
 
 def compose_message(

@@ -105,6 +105,7 @@ class CotServer:
         # Compose message
         data_package_path = self._cot_dp_paths[cot_config]
         message = compose_message(cot_config, self._address, self._port, data_package_path)
+        print(message)
 
         # Send message
         with SocketConnection(client_address, client_port, self._timeout) as socket_connection:
