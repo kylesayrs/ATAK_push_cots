@@ -6,7 +6,7 @@ import socket
 
 class SocketConnection:
     """
-    Wraps tcp socket with context
+    Context wrapper for tcp socket
 
     :param address: address for socket connection
     :param port: port for socket connection
@@ -33,8 +33,3 @@ class SocketConnection:
 
     def __exit__(self, _exc_type: type, exc_value: Exception, _exc_tb: TracebackType):
         self._socket.close()
-
-
-if __name__ == "__main__":
-    with SocketConnection("localhost", 8001) as socket_connection:
-        socket_connection.send("asdf")

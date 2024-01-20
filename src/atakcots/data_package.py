@@ -46,12 +46,15 @@ def compose_manifest(cot_config: CotConfig) -> str:
     mpm.set("version", "2")
 
     config = ElementTree.SubElement(mpm, "Configuration")
+
     config_uid = ElementTree.SubElement(config, "Parameter")
     config_uid.set("name", "uid")
     config_uid.set("value", uuid.uuid4().hex)
+
     config_name = ElementTree.SubElement(config, "Parameter")
     config_name.set("name", "name")
     config_name.set("value", cot_config.package_name)
+
     config_del = ElementTree.SubElement(config, "Parameter")
     config_del.set("name", "onReceiveDelElementTreee")
     config_del.set("value", "true")
@@ -75,7 +78,10 @@ def compose_manifest(cot_config: CotConfig) -> str:
 
 def get_attachment_arcname(cot_config: CotConfig, attachment_path: str) -> str:
     """
-    CoT attachments must be placed in a folder with the CoT uid
+    CoT attachments must be placed in a folder named after the CoT uid
+
+    :param cot_config: cursor on target message information
+    :param attachment_path: path to attachment file
     """
     path_hash = hash(attachment_path)
     extension = os.path.splitext(attachment_path)[1]

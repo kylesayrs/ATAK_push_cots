@@ -11,11 +11,10 @@ class CotConfig(BaseModel):
     For more CoT schema information, see
         https://www.mitre.org/sites/default/files/pdf/09_4937.pdf    
     """
-    
-    uid: str = Field(description="")
+    uid: str = Field(description="Globally unique name for this information on this event")
     latitude: float = Field(description="Latitude referred to the WGS 84 ellipsoid in degrees")
     longitude: float = Field(description="Longitude referred to the WGS 84 in degrees")
-    altitude: float = Field(default= 0.0, description="Height above the WGS ellipsoid in meters")
+    altitude: float = Field(default=0.0, description="Height above the WGS ellipsoid in meters")
 
     stale_duration: int = Field(default=600, description="Number of seconds before cot message becomes stale")
 
@@ -24,7 +23,7 @@ class CotConfig(BaseModel):
     dimension: str = Field(default="G", description="Dimension of cot type field")
     how: str = Field(default="m-g", description="Gives a hint about how the coordinates were generated")
 
-    sender_callsign: str = Field(default="", description="Callsign of the entity sendering the cot")
+    sender_callsign: str = Field(default="default_sender_callsign", description="Callsign of the entity sendering the cot")
     sender_uid: str = Field(default="default_sender_uid", description="Unique identifier of the entity sendering the cot")
 
     package_name: str = Field(default="data_package", description="Name of data package which contains attachments")

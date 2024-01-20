@@ -3,14 +3,11 @@ Push Cursor on Target messages to TAK clients with attachments and other informa
 
 
 ## Background ##
-Android Tactical Awareness Kit (ATAK) is a software developed by the US Air Force
-to assist geospatial awareness. A civilian distribution, CivTAK, can be found
-[here](https://github.com/deptofdefense/AndroidTacticalAssaultKit-CIV).
+The Android Tactical Awareness Kit (ATAK) is a software platform used to enable geospatial awareness and multiuser collaboration. ATAK was originally developed by the Air Force Research Laboratory (AFRL) and is now maintained by the TAK Product Center (TPC) as a civilian application. This package exists to allow the easy sharing of markers (CoTs) to users of ATAK and other CivTAK distributions exist such as iTAK (iOS) and WinTAK (Windows).
 
-Additionally, a summary of the cursor on target schema (CoT) can be found [here](https://www.mitre.org/sites/default/files/pdf/09_4937.pdf)
+A summary of the cursor on target schema (CoT) can be found [here](https://www.mitre.org/sites/default/files/pdf/09_4937.pdf).
 
-For troubleshooting, create an issue or ask on the [reddit](https://www.reddit.com/r/ATAK/wiki/index) or [discord](https://discord.com/invite/xTdEcpc), the community
-is super friendly.
+For troubleshooting, create an issue or ask on the [reddit](https://www.reddit.com/r/ATAK/wiki/index) or [discord](https://discord.com/invite/xTdEcpc).
 
 
 ## Install ##
