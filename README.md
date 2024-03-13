@@ -1,5 +1,5 @@
 # ATAK_push_cots
-Push Cursor on Target messages to TAK clients with attachments and other information
+Push Cursor on Target messages to TAK clients with attachments and other information without requiring a TAK server.
 
 
 ## Background ##
