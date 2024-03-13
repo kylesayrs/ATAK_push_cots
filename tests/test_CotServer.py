@@ -14,6 +14,7 @@ from tests.mock import MockClient
 _TEST_ADDRESS = "localhost"
 _TEST_SERVER_PORT = 8000
 _TEST_CLIENT_PORT = 8001
+_TEST_SERVER_EXTERNAL_PORT = 8002
 _TEST_DATA_PACKAGE_DIR = "/tmp/cot_server_test"
 _TEST_CLIENT_TIMEOUT = 0.1
 
@@ -48,7 +49,11 @@ def http_get_assert(
 
 @pytest.mark.filterwarnings("ignore::Warning")
 def test_file_server_start_stop():
-    server = CotServer(_TEST_ADDRESS, _TEST_SERVER_PORT, _TEST_DATA_PACKAGE_DIR)
+    server = CotServer(
+        _TEST_ADDRESS,
+        _TEST_SERVER_PORT,
+        data_package_dir=_TEST_DATA_PACKAGE_DIR
+    )
     http_get_assert("/", None)
 
     server.start()
@@ -66,7 +71,11 @@ def test_file_server_start_stop():
 def test_file_server_context():
     http_get_assert("/", None)
 
-    with CotServer(_TEST_ADDRESS, _TEST_SERVER_PORT, _TEST_DATA_PACKAGE_DIR) as _server:
+    with CotServer(
+        _TEST_ADDRESS,
+        _TEST_SERVER_PORT,
+        data_package_dir=_TEST_DATA_PACKAGE_DIR
+    ) as _server:
         http_get_assert("/", 200)
 
         with open(os.path.join(_TEST_DATA_PACKAGE_DIR, "tmp.txt"), "w") as file:
@@ -78,7 +87,11 @@ def test_file_server_context():
 
 @pytest.mark.filterwarnings("ignore::Warning")
 def test_restart_file_server():
-    server = CotServer(_TEST_ADDRESS, _TEST_SERVER_PORT, _TEST_DATA_PACKAGE_DIR)
+    server = CotServer(
+        _TEST_ADDRESS,
+        _TEST_SERVER_PORT,
+        data_package_dir=_TEST_DATA_PACKAGE_DIR
+    )
 
     server.start()
     server.stop()
@@ -91,10 +104,14 @@ def test_restart_file_server():
 
 @pytest.mark.filterwarnings("ignore::Warning")
 def test_restart_file_server_context():
-    with CotServer(_TEST_ADDRESS, _TEST_SERVER_PORT, _TEST_DATA_PACKAGE_DIR) as _server:
+    with CotServer(
+        _TEST_ADDRESS,
+        _TEST_SERVER_PORT,
+        data_package_dir=_TEST_DATA_PACKAGE_DIR
+    ) as _server:
         pass
 
-    with CotServer(_TEST_ADDRESS, _TEST_SERVER_PORT, _TEST_DATA_PACKAGE_DIR) as _server:
+    with CotServer(_TEST_ADDRESS, _TEST_SERVER_PORT, data_package_dir=_TEST_DATA_PACKAGE_DIR) as _server:
         http_get_assert("/", 200)
 
     http_get_assert("/", None)
@@ -109,7 +126,11 @@ def test_push_cot():
             longitude=0.0
         )
 
-        with CotServer(_TEST_ADDRESS, _TEST_SERVER_PORT, _TEST_DATA_PACKAGE_DIR) as server:
+        with CotServer(
+            _TEST_ADDRESS,
+            _TEST_SERVER_PORT,
+            data_package_dir=_TEST_DATA_PACKAGE_DIR
+        ) as server:
             server.push_cot(cot_config, _TEST_ADDRESS, _TEST_CLIENT_PORT)
             time.sleep(0.1)  # wait for cot to be transmitted
 
@@ -124,9 +145,22 @@ def test_push_cot():
 
 
 @pytest.mark.filterwarnings("ignore::Warning")
-def test_push_cot_attachments():
-    with MockClient((_TEST_ADDRESS, _TEST_CLIENT_PORT)) as mock_client:
-        with CotServer(_TEST_ADDRESS, _TEST_SERVER_PORT, _TEST_DATA_PACKAGE_DIR) as server:
+@pytest.mark.parametrize(
+    "address,port,external_address,external_port",
+    [
+        (_TEST_ADDRESS, _TEST_SERVER_PORT, _TEST_ADDRESS, _TEST_SERVER_PORT),
+        (_TEST_ADDRESS, _TEST_SERVER_PORT, _TEST_ADDRESS, _TEST_SERVER_EXTERNAL_PORT),
+    ],
+)
+def test_push_cot_attachments(address, port, external_address, external_port):
+    with MockClient((address, _TEST_CLIENT_PORT)) as mock_client:
+        with CotServer(
+            address,
+            port,
+            external_address=external_address,
+            external_port=external_port,
+            data_package_dir=_TEST_DATA_PACKAGE_DIR
+        ) as server:
             attachment_path = os.path.join(_TEST_DATA_PACKAGE_DIR, "tmp.txt")
             with open(attachment_path, "w") as file:
                 pass
@@ -138,7 +172,7 @@ def test_push_cot_attachments():
                 attachment_paths=attachment_path
             )
             
-            server.push_cot(cot_config, _TEST_ADDRESS, _TEST_CLIENT_PORT)
+            server.push_cot(cot_config, address, _TEST_CLIENT_PORT)
             time.sleep(0.1)  # wait for cot to be transmitted
 
         assert len(mock_client.connections) == 1
@@ -151,7 +185,7 @@ def test_push_cot_attachments():
         assert data.find(".//point").attrib["lon"] == "0.0"
 
         sender_url = (
-            f"http://{_TEST_ADDRESS}:{_TEST_SERVER_PORT}/"
+            f"http://{external_address}:{external_port}/"
             f"{os.path.basename(server._cot_dp_paths[cot_config])}"
         )
         assert data.find(".//fileshare").attrib["senderUrl"] == sender_url

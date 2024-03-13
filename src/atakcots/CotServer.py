@@ -25,8 +25,10 @@ class CotServer:
         server.push_cot(cot_config, "client_address", 4242)
     ```
 
-    :param address: address where cot data packages are served from
-    :param port: port where cot data packages are served from
+    :param address: address to bind to when serving cot data packages
+    :param port: port to bind to when serving cot data packages
+    :param external_address: address clients go to when receiving cot data packages
+    :param external_port: port clients go to when receiving cot data packages
     :param data_package_dir: path to directory where data package files are stored
     :param timeout: defines timeout for sending cot messages over tcp socket
     """
@@ -34,11 +36,15 @@ class CotServer:
         self,
         address: str,
         port: int,
+        external_address: Optional[str] = None,
+        external_port: Optional[int] = None,
         data_package_dir: str = "/tmp/cot_server",
         timeout: Optional[float] = None
     ):
         self._address = address
         self._port = port
+        self._external_address = external_address if external_address is not None else address
+        self._external_port = external_port if external_port is not None else port
         self._data_package_dir = data_package_dir
         self._timeout = timeout
 
@@ -104,7 +110,12 @@ class CotServer:
         
         # Compose message
         data_package_path = self._cot_dp_paths[cot_config]
-        message = compose_message(cot_config, self._address, self._port, data_package_path)
+        message = compose_message(
+            cot_config,
+            self._external_address,
+            self._external_port,
+            data_package_path
+        )
 
         # Send message
         with SocketConnection(client_address, client_port, self._timeout) as socket_connection:
