@@ -1,5 +1,6 @@
 from typing import Optional, Union, List
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field
+from pydantic.functional_validators import field_validator
 
 import json
 
