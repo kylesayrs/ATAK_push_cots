@@ -1,6 +1,10 @@
 # ATAK_push_cots
 Push Cursor on Target messages to TAK clients with attachments and other information without requiring a TAK server.
 
+<p align="center">
+<img width="75%" src="assets/tak-logo.png" alt="ATAK"/>
+</p>
+
 
 ## Background ##
 The Android Tactical Awareness Kit (ATAK) is a software platform used to enable geospatial awareness and multiuser collaboration. ATAK was originally developed by the Air Force Research Laboratory (AFRL) and is now maintained by the TAK Product Center (TPC) as a civilian application. This package exists to allow the easy sharing of markers (CoTs) to users of ATAK and other CivTAK distributions exist such as iTAK (iOS) and WinTAK (Windows).
