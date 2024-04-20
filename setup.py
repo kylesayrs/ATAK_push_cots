@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 _deps = [
-    "pydantic"
+    "pydantic>=1.8.0"
 ]
 
 setup(
