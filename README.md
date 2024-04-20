@@ -2,7 +2,7 @@
 Push Cursor on Target messages to TAK clients with attachments and other information without requiring a TAK server.
 
 <p align="center">
-<img width="75%" src="assets/tak-logo.png" alt="ATAK"/>
+<img width="15%" src="assets/tak-logo.png" alt="ATAK"/>
 </p>
 
 
