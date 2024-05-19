@@ -53,7 +53,7 @@ with CotServer("192.168.0.1", 8000) as server:
     server.push_cot(cot_config, "192.168.0.4")
 
     # you should keep the context alive for as long as
-    # you want clients to receive the attachments
+    # you want clients to fetch the attachments
 ```
 
 If you'd rather not use a context manager, you can use `start` and `stop` functions
@@ -74,7 +74,7 @@ server.push_cot(cot_config, "192.168.0.2")
 server.push_cot(cot_config, "192.168.0.3")
 server.push_cot(cot_config, "192.168.0.4")
 
-# stop when clients no longer need to receive attachments
+# stop when clients no longer need to fetch attachments
 server.stop()
 ```
 
