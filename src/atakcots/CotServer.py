@@ -25,10 +25,9 @@ class CotServer:
         server.push_cot(cot_config, "client_address", 4242)
     ```
 
-    :param address: address to bind to when serving cot data packages
-    :param port: port to bind to when serving cot data packages
-    :param external_address: address clients go to when receiving cot data packages
-    :param external_port: port clients go to when receiving cot data packages
+    :param address: client-facing address
+    :param port: client-facing and bind port
+    :param bind_address: bind address
     :param data_package_dir: path to directory where data package files are stored
     :param timeout: defines timeout for sending cot messages over tcp socket
     """
@@ -36,15 +35,13 @@ class CotServer:
         self,
         address: str,
         port: int,
-        external_address: Optional[str] = None,
-        external_port: Optional[int] = None,
+        bind_address: str = "0.0.0.0",
         data_package_dir: str = "/tmp/cot_server",
         timeout: Optional[float] = None
     ):
         self._address = address
         self._port = port
-        self._external_address = external_address if external_address is not None else address
-        self._external_port = external_port if external_port is not None else port
+        self._bind_address = bind_address
         self._data_package_dir = data_package_dir
         self._timeout = timeout
 
@@ -69,7 +66,7 @@ class CotServer:
         """
         # reinitialize file server to allow restarting
         handler = partial(http.server.SimpleHTTPRequestHandler, directory=self._data_package_dir)
-        self._file_server = http.server.HTTPServer((self._address, self._port), handler)
+        self._file_server = http.server.HTTPServer((self._bind_address, self._port), handler)
         self._file_server_thread = Thread(target=self._file_server.serve_forever)
         self._file_server_thread.start()
 
@@ -112,8 +109,8 @@ class CotServer:
         data_package_path = self._cot_dp_paths[cot_config]
         message = compose_message(
             cot_config,
-            self._external_address,
-            self._external_port,
+            self._address,
+            self._port,
             data_package_path
         )
 
