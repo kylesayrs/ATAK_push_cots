@@ -79,3 +79,6 @@ server.stop()
 ```
 
 See `examples` for more use cases.
+
+## Feature requests ##
+If you have any features or changes you'd like added to this repo, please create an issue and I'll make sure to implement/address it.
