@@ -51,6 +51,7 @@ class CotServer:
         self._file_server_thread = None
 
         self._cot_dp_paths: Dict[CotConfig, str] = {}
+        self._unrequested_cots = set()
 
         if address in ["localhost", "172.0.0.1"]:
             warnings.warn(
@@ -65,6 +66,7 @@ class CotServer:
 
         """
         # reinitialize file server to allow restarting
+        # TODO: create custom handler which removes from `_unrequested_cots`
         handler = partial(http.server.SimpleHTTPRequestHandler, directory=self._data_package_dir)
         self._file_server = http.server.HTTPServer((self._bind_address, self._port), handler)
         self._file_server_thread = Thread(target=self._file_server.serve_forever)
@@ -113,6 +115,9 @@ class CotServer:
             self._port,
             data_package_path
         )
+
+        # mark cot as unrequested
+        self._unrequested_cots.add(hash(cot_config))
 
         # send message
         with SocketConnection(client_address, client_port, self._timeout) as socket_connection:
