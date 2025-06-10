@@ -13,9 +13,9 @@ class CotConfig(BaseModel):
         https://www.mitre.org/sites/default/files/pdf/09_4937.pdf    
     """
     uid: str = Field(description="Globally unique name for this information on this event")
-    latitude: float = Field(description="Latitude referred to the WGS 84 ellipsoid in degrees")
-    longitude: float = Field(description="Longitude referred to the WGS 84 in degrees")
-    altitude: float = Field(default=0.0, description="Height above the WGS ellipsoid in meters")
+    latitude: float = Field(description="Latitude along the WGS 84 ellipsoid in degrees")
+    longitude: float = Field(description="Longitude along the WGS 84 ellipsoid in degrees")
+    altitude: float = Field(default=0.0, description="Height above the WGS 84 ellipsoid in meters")
 
     stale_duration: int = Field(default=600, description="Number of seconds before cot message becomes stale")
 
@@ -28,7 +28,7 @@ class CotConfig(BaseModel):
     sender_uid: str = Field(default="default_sender_uid", description="Unique identifier of the entity sendering the cot")
 
     package_name: str = Field(default="data_package", description="Name of data package which contains attachments")
-    attachment_paths: List[str] = Field(default=[], description="Paths to files to be attached to the cot. Can either be a string, a list of strings, or None")
+    attachment_paths: List[str] = Field(default=[], description="Paths to files to be attached to the cot. Can either be a string, a list of strings, or `None`")
     
 
     @field_validator("attachment_paths", mode="before")
