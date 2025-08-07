@@ -17,6 +17,8 @@ class CotConfig(BaseModel):
     longitude: float = Field(description="Longitude along the WGS 84 ellipsoid in degrees")
     altitude: float = Field(default=0.0, description="Height above the WGS 84 ellipsoid in meters")
 
+    type: str = Field(default="a-U-G", description="The MIL-STD-2525C symbol of the COT")
+
     stale_duration: int = Field(default=600, description="Number of seconds before cot message becomes stale")
 
     callsign: str = Field(default="default_callsign", description="Callsign of event described by cot")
