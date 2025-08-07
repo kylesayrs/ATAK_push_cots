@@ -46,7 +46,7 @@ def compose_message(
     event.set("uid", cot_config.uid)
 
     # methodology data
-    event.set("type", f"a-{cot_config.attitude}-{cot_config.dimension}")
+    event.set("type", cot_config.type)
     event.set("how", cot_config.how)
     
     # time data
